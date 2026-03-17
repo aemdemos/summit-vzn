@@ -15,6 +15,11 @@ export default function decorate(block) {
     ul.append(createCard(row));
   });
   ul.querySelectorAll('picture > img').forEach((img) => {
+    // Skip external images — AEM optimisation only works on same-origin assets
+    if (img.src && img.src.startsWith('http')) {
+      const imgOrigin = new URL(img.src).origin;
+      if (imgOrigin !== window.location.origin) return;
+    }
     const optimizedPic = createOptimizedPicture(img.src, img.alt, false, [{ width: '750' }]);
     moveInstrumentation(img, optimizedPic.querySelector('img'));
     img.closest('picture').replaceWith(optimizedPic);

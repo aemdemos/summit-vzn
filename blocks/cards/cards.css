@@ -1,5 +1,12 @@
 @import url('./cards-tokens.css');
 
+.cards,
+.cards *,
+.cards *::before,
+.cards *::after {
+  box-sizing: border-box;
+}
+
 .cards > ul {
   list-style: none;
   margin: 0;
@@ -24,6 +31,4 @@
 
 .cards > ul > li img {
   width: 100%;
-  aspect-ratio: var(--cards-image-aspect-ratio);
-  object-fit: var(--cards-image-object-fit);
 }

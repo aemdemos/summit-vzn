@@ -1,7 +1,26 @@
 /* hero design tokens */
 :root {
-  --hero-padding: 40px 24px;
-  --hero-padding-desktop: 40px 32px;
-  --hero-min-height: 300px;
+  --hero-border-radius: 16px;
+  --hero-padding: 24px 20px;
+  --hero-padding-desktop: 64px 48px 0 64px;
+  --hero-min-height: 280px;
+  --hero-min-height-desktop: 300px;
+  --hero-heading-font-size: 24px;
+  --hero-heading-line-height: 25.2px;
+  --hero-heading-font-size-desktop: 40px;
+  --hero-heading-line-height-desktop: 42px;
+  --hero-subtitle-font-size: 10px;
+  --hero-subtitle-line-height: 12px;
+  --hero-banner-min-height: 140px;
+  --hero-banner-min-height-desktop: 180px;
+  --hero-banner-heading-font-size: 32px;
+  --hero-banner-heading-line-height: 36px;
+  --hero-banner-heading-font-size-desktop: 40px;
+  --hero-banner-heading-line-height-desktop: 40px;
   --hero-heading-max-width: 1200px;
+  --hero-card-heading-font-size: 24px;
+  --hero-card-heading-line-height: 24px;
+  --marquee-gap: 24px;
+  --marquee-max-width: 1280px;
+  --marquee-main-row-height: clamp(400px, 47vw, 600px);
 }
