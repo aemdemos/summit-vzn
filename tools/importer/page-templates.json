@@ -1,0 +1,94 @@
+{
+  "templates": [
+    {
+      "name": "homepage",
+      "urls": [
+        "https://www.verizon.com/"
+      ],
+      "description": "Verizon homepage with hero carousel, deals grid, service cards, and category navigation",
+      "blocks": [
+        {
+          "name": "hero",
+          "instances": [
+            ".vui\\:cmp-marqueelayout__tile-1"
+          ]
+        },
+        {
+          "name": "cards",
+          "instances": [
+            ".vui\\:cmp-marqueelayout__tile-2, .vui\\:cmp-marqueelayout__tile-3",
+            ".vui\\:fed__deals-tile",
+            ".vui\\:cmp-previewtiles__tile",
+            ".vui\\:cmp-categorytilettes__tilette"
+          ]
+        },
+        {
+          "name": "hero",
+          "instances": [
+            ".vui\\:cmp-marqueelayout__skinny-banner"
+          ],
+          "section": "red"
+        }
+      ],
+      "sections": [
+        {
+          "id": "section-hero",
+          "name": "Hero Marquee Layout",
+          "selector": "section.vui\\:cmp-marqueelayout",
+          "style": null,
+          "blocks": [
+            "hero",
+            "cards"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-5g-banner",
+          "name": "5G Network Banner",
+          "selector": ".vui\\:cmp-marqueelayout__skinny-banner",
+          "style": "red",
+          "blocks": [
+            "hero"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-deals",
+          "name": "Deals & Discounts",
+          "selector": "section#deals-discount",
+          "style": null,
+          "blocks": [
+            "cards"
+          ],
+          "defaultContent": [
+            "#deals-discount h2"
+          ]
+        },
+        {
+          "id": "section-services",
+          "name": "Stay Connected & Save",
+          "selector": "section.vui\\:cmp-previewtiles",
+          "style": null,
+          "blocks": [
+            "cards"
+          ],
+          "defaultContent": [
+            ".vui\\:cmp-previewtiles__header"
+          ]
+        },
+        {
+          "id": "section-categories",
+          "name": "Category Browse",
+          "selector": "section.vui\\:cmp-categorytilettes",
+          "style": null,
+          "blocks": [
+            "cards"
+          ],
+          "defaultContent": [
+            ".vui\\:cmp-categorytilettes__header"
+          ]
+        }
+      ]
+    }
+  ]
+}

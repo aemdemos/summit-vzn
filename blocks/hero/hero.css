@@ -1,39 +1,260 @@
 @import url('./hero-tokens.css');
 
+/* ===== Hero block base ===== */
+.hero,
+.hero *,
+.hero *::before,
+.hero *::after {
+  box-sizing: border-box;
+}
+
+.hero {
+  position: relative;
+  border-radius: var(--hero-border-radius);
+  overflow: hidden;
+  min-height: var(--hero-min-height);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding: var(--hero-padding);
+}
+
+/* Background image layer */
+.hero .hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hero .hero-bg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Text content overlay */
+.hero .hero-content {
+  position: relative;
+  z-index: 1;
+  color: var(--color-white);
+  text-align: center;
+}
+
+.hero .hero-content h1,
+.hero .hero-content h2 {
+  color: var(--color-white);
+  font-family: var(--heading-font-family);
+  font-size: var(--hero-heading-font-size);
+  font-weight: 700;
+  line-height: var(--hero-heading-line-height);
+  margin: 0 auto 16px;
+  max-width: var(--hero-heading-max-width);
+}
+
+.hero .hero-content p {
+  color: var(--color-white);
+  font-size: var(--hero-subtitle-font-size);
+  line-height: var(--hero-subtitle-line-height);
+  margin: 0;
+}
+
+/* CTA paragraph — reset subtitle sizing */
+.hero .hero-content p:last-child {
+  font-size: var(--button-font-size);
+  line-height: normal;
+  margin-top: 8px;
+}
+
+/* CTA links styled as buttons */
+.hero .hero-content p:last-child a {
+  display: inline-block;
+  padding: var(--button-padding);
+  border-radius: var(--button-border-radius);
+  background-color: var(--color-white);
+  color: var(--color-black);
+  font-family: var(--heading-font-family);
+  font-weight: var(--button-font-weight);
+  font-size: var(--button-font-size);
+  line-height: 22px;
+  letter-spacing: var(--button-letter-spacing);
+  text-decoration: none;
+  min-width: 76px;
+  text-align: center;
+  transition: background-color var(--transition-base);
+}
+
+.hero .hero-content p:last-child a:hover,
+.hero .hero-content p:last-child a:focus {
+  background-color: var(--color-gray-light);
+}
+
+/* ===== Banner variant ===== */
+
+/* Banner: short, wide hero with image overlay on solid background */
+.hero.banner {
+  justify-content: center;
+  align-items: center;
+  min-height: var(--hero-banner-min-height);
+}
+
+/* Image contained within banner, preserving aspect ratio */
+.hero.banner .hero-bg img {
+  object-fit: contain;
+  object-position: center;
+}
+
+/* Content flows horizontally: heading left, CTA right */
+.hero.banner .hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-m);
+  width: 100%;
+}
+
+.hero.banner .hero-content h2 {
+  font-size: var(--hero-banner-heading-font-size);
+  line-height: var(--hero-banner-heading-line-height);
+  margin: 0;
+}
+
+.hero.banner .hero-content p {
+  margin: 0;
+}
+
+/* Banner color variants — background behind the image overlay */
+.hero.banner.red {
+  background-color: var(--color-red-dark);
+}
+
+.hero.banner.dark {
+  background-color: var(--color-black);
+}
+
+/* Disclaimer text below the main content */
+.hero.banner .hero-disclaimer {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-top: 1px solid var(--color-white);
+  padding: var(--spacing-s) 0;
+  margin-top: var(--spacing-s);
+  font-size: var(--body-font-size-xs);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--color-white);
+  text-align: center;
+}
+
+@media (width >= 900px) {
+  .hero.banner {
+    min-height: var(--hero-banner-min-height-desktop);
+    padding: 32px;
+  }
+
+  .hero.banner .hero-content {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .hero.banner .hero-content h2 {
+    font-size: var(--hero-banner-heading-font-size-desktop);
+    line-height: var(--hero-banner-heading-line-height-desktop);
+  }
+}
+
+/* ===== Hero wrapper overrides ===== */
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
 }
 
-.hero {
-  position: relative;
-  padding: var(--hero-padding);
-  min-height: var(--hero-min-height);
-}
-
-.hero h1 {
-  max-width: var(--hero-heading-max-width);
-  margin-left: auto;
-  margin-right: auto;
-  color: var(--background-color);
-}
-
-.hero picture {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  object-fit: cover;
-  box-sizing: border-box;
-}
-
-.hero img {
-  object-fit: cover;
-  width: 100%;
+/* Hero wrapper must fill its grid cell */
+.hero-wrapper .hero {
   height: 100%;
 }
 
+/* ===== Desktop hero ===== */
 @media (width >= 900px) {
   .hero {
     padding: var(--hero-padding-desktop);
+    min-height: var(--hero-min-height-desktop);
   }
+
+  .hero .hero-content h1,
+  .hero .hero-content h2 {
+    font-size: var(--hero-heading-font-size-desktop);
+    line-height: var(--hero-heading-line-height-desktop);
+  }
+}
+
+/* ===== Marquee grid section layout ===== */
+
+/* Override default section spacing and wrapper constraints */
+main > .section.marquee {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--marquee-gap);
+  max-width: var(--marquee-max-width);
+  margin: 0 auto;
+  padding: var(--marquee-gap);
+}
+
+main > .section.marquee > div {
+  max-width: unset;
+  margin: 0;
+  padding: 0;
+}
+
+/* Cards in marquee: always stack vertically */
+main > .section.marquee .cards > ul {
+  grid-template-columns: 1fr;
+  height: 100%;
+}
+
+/* Each card in the marquee fills equally, tile-style with rounded corners */
+main > .section.marquee .cards > ul > li {
+  border-radius: var(--hero-border-radius);
+  overflow: hidden;
+  border: 0;
+}
+
+/* Marquee card headings */
+main > .section.marquee .cards h2,
+main > .section.marquee .cards h3 {
+  font-size: var(--hero-card-heading-font-size);
+  line-height: var(--hero-card-heading-line-height);
+}
+
+/* Skinny banner in marquee: handled by .hero.banner variant */
+
+/* ===== Desktop: 2-column marquee grid ===== */
+@media (width >= 900px) {
+  main > .section.marquee {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: var(--marquee-main-row-height) auto;
+  }
+
+  /* Main hero: left column */
+  main > .section.marquee > .hero-wrapper:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Cards: right column, same row as main hero */
+  main > .section.marquee > .cards-wrapper {
+    grid-column: 2;
+    grid-row: 1;
+    overflow: hidden;
+  }
+
+  /* Skinny banner: full width bottom row */
+  main > .section.marquee > .hero-wrapper:last-child {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
 }
