@@ -20,6 +20,14 @@
   padding: var(--hero-padding);
 }
 
+/* Text content overlay */
+.hero .hero-content {
+  position: relative;
+  z-index: 1;
+  color: var(--color-white);
+  text-align: center;
+}
+
 /* Background image layer */
 .hero .hero-bg {
   position: absolute;
@@ -32,14 +40,6 @@
   height: 100%;
   object-fit: cover;
   display: block;
-}
-
-/* Text content overlay */
-.hero .hero-content {
-  position: relative;
-  z-index: 1;
-  color: var(--color-white);
-  text-align: center;
 }
 
 .hero .hero-content h1,
@@ -97,6 +97,7 @@
   justify-content: center;
   align-items: center;
   min-height: var(--hero-banner-min-height);
+  padding: 0;
 }
 
 /* Image contained within banner, preserving aspect ratio */
@@ -105,13 +106,21 @@
   object-position: center;
 }
 
-/* Content flows horizontally: heading left, CTA right */
+/* Banner content: positioning context for bg image (bg is inside content) */
 .hero.banner .hero-content {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: var(--spacing-m);
+  flex: 1 1 auto;
   width: 100%;
+  padding: 24px 20px;
+}
+
+.hero.banner .hero-content h2,
+.hero.banner .hero-content p {
+  position: relative;
+  z-index: 1;
 }
 
 .hero.banner .hero-content h2 {
@@ -138,12 +147,14 @@
   position: relative;
   z-index: 1;
   width: 100%;
+  margin-top: auto;
   border-top: 1px solid var(--color-white);
-  padding: var(--spacing-s) 0;
-  margin-top: var(--spacing-s);
-  font-size: var(--body-font-size-xs);
+  padding: 4px 20px;
+  font-family: var(--heading-font-family);
+  font-size: 10px;
   font-weight: 700;
-  line-height: 1.2;
+  line-height: 12px;
+  letter-spacing: normal;
   color: var(--color-white);
   text-align: center;
 }
@@ -151,18 +162,22 @@
 @media (width >= 900px) {
   .hero.banner {
     min-height: var(--hero-banner-min-height-desktop);
-    padding: 32px;
   }
 
   .hero.banner .hero-content {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
+    padding: 32px;
   }
 
   .hero.banner .hero-content h2 {
     font-size: var(--hero-banner-heading-font-size-desktop);
     line-height: var(--hero-banner-heading-line-height-desktop);
+  }
+
+  .hero.banner .hero-disclaimer {
+    padding: 0 0 8px 32px;
   }
 }
 
@@ -195,6 +210,7 @@
 
 /* Override default section spacing and wrapper constraints */
 main > .section.marquee {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--marquee-gap);
@@ -209,17 +225,28 @@ main > .section.marquee > div {
   padding: 0;
 }
 
-/* Cards in marquee: always stack vertically */
-main > .section.marquee .cards > ul {
-  grid-template-columns: 1fr;
+/* Cards block must fill its wrapper so the ul can stretch */
+main > .section.marquee .cards {
   height: 100%;
 }
 
-/* Each card in the marquee fills equally, tile-style with rounded corners */
+/* Cards in marquee: stack vertically and split height equally */
+main > .section.marquee .cards > ul {
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr 1fr;
+  height: 100%;
+}
+
+/* Each card fills its grid row — override variant min-heights */
 main > .section.marquee .cards > ul > li {
+  min-height: 0;
   border-radius: var(--hero-border-radius);
   overflow: hidden;
   border: 0;
+}
+
+main > .section.marquee .cards .cards-card-body {
+  min-height: 0;
 }
 
 /* Marquee card headings */

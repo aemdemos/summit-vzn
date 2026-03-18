@@ -1,8 +1,28 @@
-/* cards design tokens */
+/* cards design tokens — base */
 :root {
   --cards-grid-min-width: 257px;
   --cards-grid-gap: 24px;
   --cards-card-border-width: 1px;
   --cards-card-border-color: #dadada;
   --cards-card-body-margin: 16px;
+
+  /* deals-discounts variant tokens */
+  --deals-discounts-grid-gap: 24px;
+  --deals-discounts-card-border-radius: 16px;
+  --deals-discounts-card-bg: var(--color-white);
+  --deals-discounts-card-min-height: 380px;
+  --deals-discounts-card-body-padding: 24px;
+
+  /* previewtiles variant tokens */
+  --previewtiles-grid-gap: 24px;
+  --previewtiles-card-border-radius: 12px;
+  --previewtiles-card-bg: #f8f3e9;
+  --previewtiles-card-padding: 24px;
+  --previewtiles-icon-size: 57px;
+}
+
+@media (width >= 900px) {
+  :root {
+    --deals-discounts-card-min-height: 450px;
+  }
 }

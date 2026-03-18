@@ -42,7 +42,7 @@
   --heading-font-size-xs: 14px;
 
   /* layout */
-  --max-width-site: 1440px;
+  --max-width-site: 1280px;
 
   /* nav heights */
   --nav-height: 64px;
@@ -284,6 +284,7 @@ main > .section {
 }
 
 main > .section > div {
+  box-sizing: border-box;
   max-width: var(--max-width-site);
   margin: auto;
   padding: 0 24px;
@@ -291,12 +292,6 @@ main > .section > div {
 
 main > .section:first-of-type {
   margin-top: 0;
-}
-
-@media (width >= 900px) {
-  main > .section > div {
-    padding: 0 32px;
-  }
 }
 
 /* section variants */
