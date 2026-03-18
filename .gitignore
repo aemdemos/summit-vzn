@@ -11,4 +11,5 @@ localhost.pem
 localhost-key.pem
 .vscode
 .cursor
+.migration
 Trace*.json

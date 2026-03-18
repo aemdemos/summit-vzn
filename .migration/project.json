@@ -2,5 +2,5 @@
   "type": "da",
   "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json",
   "sourceRepo": "adobe/aem-block-collection",
-  "contentHostUrl": "https://content.da.live/aemdemos/summit-vzn/"
+  "contentHostUrl": "content.da.live"
 }
