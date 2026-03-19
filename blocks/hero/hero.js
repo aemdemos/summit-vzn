@@ -21,14 +21,27 @@ export default function decorate(block) {
   // Rebuild block: background image + content overlay + optional disclaimer
   block.textContent = '';
 
+  const isBanner = block.classList.contains('banner');
+
   if (imgEl) {
     const bgDiv = document.createElement('div');
     bgDiv.classList.add('hero-bg');
     bgDiv.append(imgEl);
-    block.append(bgDiv);
-  }
 
-  if (content) {
+    if (isBanner && content) {
+      // Banner: bg inside content so image doesn't spill into disclaimer
+      content.classList.add('hero-content');
+      content.prepend(bgDiv);
+      block.append(content);
+    } else {
+      // Default hero: bg as direct child of block
+      block.append(bgDiv);
+      if (content) {
+        content.classList.add('hero-content');
+        block.append(content);
+      }
+    }
+  } else if (content) {
     content.classList.add('hero-content');
     block.append(content);
   }

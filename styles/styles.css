@@ -34,15 +34,15 @@
   --body-font-size-xs: 12px;
 
   /* heading sizes (mobile-first) */
-  --heading-font-size-xxl: 32px;
-  --heading-font-size-xl: 24px;
-  --heading-font-size-l: 20px;
-  --heading-font-size-m: 18px;
+  --heading-font-size-xxl: 36px;
+  --heading-font-size-xl: 32px;
+  --heading-font-size-l: 24px;
+  --heading-font-size-m: 20px;
   --heading-font-size-s: 16px;
   --heading-font-size-xs: 14px;
 
   /* layout */
-  --max-width-site: 1440px;
+  --max-width-site: 1280px;
 
   /* nav heights */
   --nav-height: 64px;
@@ -86,11 +86,11 @@
   src: local('Helvetica Neue'), local('Helvetica'), local('Arial');
 }
 
-@media (width >= 900px) {
+@media (width >= 1024px) {
   :root {
     /* heading sizes - desktop */
-    --heading-font-size-xxl: 40px;
-    --heading-font-size-xl: 32px;
+    --heading-font-size-xxl: 56px;
+    --heading-font-size-xl: 48px;
     --heading-font-size-l: 24px;
     --heading-font-size-m: 20px;
     --heading-font-size-s: 18px;
@@ -143,7 +143,7 @@ h6 {
   margin-bottom: 0.25em;
   font-family: var(--heading-font-family);
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.125;
   letter-spacing: normal;
   scroll-margin: 40px;
 }
@@ -284,6 +284,7 @@ main > .section {
 }
 
 main > .section > div {
+  box-sizing: border-box;
   max-width: var(--max-width-site);
   margin: auto;
   padding: 0 24px;
@@ -291,12 +292,6 @@ main > .section > div {
 
 main > .section:first-of-type {
   margin-top: 0;
-}
-
-@media (width >= 900px) {
-  main > .section > div {
-    padding: 0 32px;
-  }
 }
 
 /* section variants */
