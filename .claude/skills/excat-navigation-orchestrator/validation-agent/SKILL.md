@@ -66,7 +66,7 @@ Return only this shape. No prose.
 
 ## Schema conformance (required)
 
-Output MUST validate against `../references/validation-agent-schema.json`. Required fields: status, similarityScore, rowMatch, spacingMatch, fontMatch, interactionMatch, megamenuGroupingMatch, mismatches, critiqueReportPath, recommendReAnalysis, notes. status must be exactly "PASS" or "FAIL". No additional properties. Orchestrator validates with `scripts/validate-output.js`.
+Output MUST validate against `../references/validation-agent-schema.json`. Required fields: status, similarityScore, rowMatch, spacingMatch, fontMatch, interactionMatch, megamenuGroupingMatch, mismatches, critiqueReportPath, recommendReAnalysis, notes. status must be exactly "PASS" or "FAIL". No additional properties. Orchestrator validates with `blocks/header/navigation-validation/scripts/validate-output.js`.
 
 ## Example
 
@@ -82,7 +82,7 @@ Output MUST validate against `../references/validation-agent-schema.json`. Requi
 **Paraphrased:** "Does the migrated header match the original?", "Check header implementation quality".
 **Do NOT use for:** Pre-implementation analysis, mobile-only validation, or without running page-critique first.
 
-**Functional:** Confirm output validates with `node scripts/validate-output.js <output.json> references/validation-agent-schema.json`.
+**Functional:** Confirm output validates with `node blocks/header/navigation-validation/scripts/validate-output.js <output.json> references/validation-agent-schema.json`.
 
 ## Troubleshooting
 

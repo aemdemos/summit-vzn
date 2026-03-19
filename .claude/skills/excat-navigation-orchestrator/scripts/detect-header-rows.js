@@ -10,10 +10,10 @@
  * Writes .row-detection-complete marker so the gate can enforce execution.
  *
  * Usage:
- *   node scripts/detect-header-rows.js --url=<source-url> [--validation-dir=<path>] [--viewport=1440x900]
+ *   node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url> [--validation-dir=<path>] [--viewport=1440x900]
  *
  * Example:
- *   node scripts/detect-header-rows.js --url=https://www.example.com --validation-dir=blocks/header/navigation-validation
+ *   node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=https://www.example.com --validation-dir=blocks/header/navigation-validation
  *
  * Exit codes:
  *   0 = success, phase-1 written
@@ -68,8 +68,8 @@ function parseArgs() {
 async function main() {
   const { url, validationDir, viewport } = parseArgs();
   if (!url) {
-    console.error('Usage: node scripts/detect-header-rows.js --url=<source-url> [--validation-dir=<path>]');
-    console.error('Example: node scripts/detect-header-rows.js --url=https://www.example.com');
+    console.error('Usage: node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url> [--validation-dir=<path>]');
+    console.error('Example: node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=https://www.example.com');
     process.exit(2);
   }
 

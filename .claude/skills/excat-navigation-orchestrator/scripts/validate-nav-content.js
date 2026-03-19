@@ -11,10 +11,10 @@
  * Extracts image paths from: <img src="path"> and ![alt](path).
  *
  * Usage:
- *   node scripts/validate-nav-content.js <nav-file> <validation-dir>
+ *   node blocks/header/navigation-validation/scripts/validate-nav-content.js <nav-file> <validation-dir>
  *
  * Example:
- *   node scripts/validate-nav-content.js content/nav.plain.html blocks/header/navigation-validation
+ *   node blocks/header/navigation-validation/scripts/validate-nav-content.js content/nav.plain.html blocks/header/navigation-validation
  *
  * Exit codes:
  *   0 = all checks passed

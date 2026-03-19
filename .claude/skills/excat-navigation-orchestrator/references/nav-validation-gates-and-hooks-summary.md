@@ -52,7 +52,7 @@ This document maps the current navigation orchestrator policy (4 key critique co
 
 | Enforcement | Where | What it does |
 |-------------|--------|----------------|
-| **pre-completion-check.js** | `scripts/pre-completion-check.js` | Standalone script: checks style-register + mobile-style-register for 4 key components (status validated, lastSimilarity ≥ 95, critique proof on disk). Exit 0 = safe to announce; exit 1 = block completion message. SKILL Step 15 mandates run before report. |
+| **pre-completion-check.js** | `blocks/header/navigation-validation/scripts/pre-completion-check.js` | Standalone script: checks style-register + mobile-style-register for 4 key components (status validated, lastSimilarity ≥ 95, critique proof on disk). Exit 0 = safe to announce; exit 1 = block completion message. SKILL Step 15 mandates run before report. |
 | **checkStyleRegister / checkMobileRegisters** | `checks.js` | For any component with `status: "validated"`, errors if `lastSimilarity < SIMILARITY_THRESHOLD` (95). |
 | **checkCritiqueProof / checkMobileCritiqueProof** | `checks.js` | Validated components must have report + both screenshots on disk and critiqueIterations >= 1. |
 | **Stop check** | `nav-validation-gate.js` | Runs the above; when block occurs, appends `[HOOK:PREMATURE-COMPLETION]` to debug.log for audit. Session cannot pass until resolved. |
@@ -86,10 +86,10 @@ This document maps the current navigation orchestrator policy (4 key critique co
 
 | Enforcement | Where | What it does |
 |-------------|--------|----------------|
-| **mobile-dimensional-gate.js** | `scripts/mobile-dimensional-gate.js` | Standalone script: set viewport 375×812, open hamburger, run getBoundingClientRect/getComputedStyle. 7 categories, 24 checks: menu list width = viewport, each nav-item width = viewport, edge-to-edge alignment, chevron alignment, container chain widths, computed font-size/weight, secondary nav width. Writes `mobile/mobile-dimensional-gate-report.json` when `--validation-dir` is set. Exit 0 = pass, 1 = fail, 2 = usage/runner error. |
+| **mobile-dimensional-gate.js** | `blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js` | Standalone script: set viewport 375×812, open hamburger, run getBoundingClientRect/getComputedStyle. 7 categories, 24 checks: menu list width = viewport, each nav-item width = viewport, edge-to-edge alignment, chevron alignment, container chain widths, computed font-size/weight, secondary nav width. Writes `mobile/mobile-dimensional-gate-report.json` when `--validation-dir` is set. Exit 0 = pass, 1 = fail, 2 = usage/runner error. |
 | **Gate 7-8-12 (PostToolUse)** | `gate-table.js` | When **mobile-style-register.json** is written: runs `checkMobileDimensionalGate(workspaceRoot)`. Blocks until `mobile/mobile-dimensional-gate-report.json` exists and `passed === true`. LLM cannot build mobile style register until the script has been run and passed. |
 | **Stop check** | `nav-validation-gate.js` + `checks.js` | When phase-4 exists: runs `checkMobileDimensionalGate`. If report missing or `passed !== true`, blocks session end with remediation (run script, fix CSS, re-run until exit 0). |
-| **SKILL** | Step 12 (mobile validation) + Step 15 checklist | Run `node scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=...]` before building style registers (Step 13). Step 15: confirm gate passed — hook enforces this. |
+| **SKILL** | Step 12 (mobile validation) + Step 15 checklist | Run `node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=...]` before building style registers (Step 13). Step 15: confirm gate passed — hook enforces this. |
 | **browser_evaluate** | During migration | Paste `runGate(375)` (or runGate with config) into Playwright/browser_evaluate after opening the mobile menu; helpers must be injected — see script header. |
 
 ---
@@ -105,7 +105,7 @@ This document maps the current navigation orchestrator policy (4 key critique co
 | 5 | phase-5-aggregate.json | Block aggregate if style-register has *all* components at 0% (does not block 4 validated + rest skipped) |
 | 7-8-12 | mobile-style-register.json | Mobile critique proof; mobile-schema-register and mobile-heading-coverage |
 | 14 | phase-4-mobile.json | hasSearchForm, hasLocaleSelector, **Gate 14c** splitLinkPattern per mobileMenuItems entry |
-| **mobile-dimensional-gate** | Script (run before Step 13) | `scripts/mobile-dimensional-gate.js --url=<migrated>`. Live DOM width checks at 375×812; writes `mobile/mobile-dimensional-gate-report.json`. SKILL mandates run and pass before building style registers / completion. |
+| **mobile-dimensional-gate** | Script (run before Step 13) | `blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated>`. Live DOM width checks at 375×812; writes `mobile/mobile-dimensional-gate-report.json`. SKILL mandates run and pass before building style registers / completion. |
 | **Mobile structure detection** | Gate 6e + Stop | When phase-4 exists: require `mobile/.mobile-structure-detection-complete`. Run `detect-mobile-structure.js --url=<source>` (375×812). Same as desktop: programmatic row/item count before structural validation. When mobile has extra content, add to nav.plain.html mobile-only section and mobile missing-content-register. |
 
 **Desktop vs mobile structural validation (aligned):** Desktop: (1) **programmatic** row count via `detect-header-rows.js`, (2) phase-2 row mapping, (3) `compare-structural-schema.js`. Mobile now has the same pattern: (1) **programmatic** row and item count via `detect-mobile-structure.js` (viewport 375×812, writes `mobile/mobile-structure-detection.json` and `.mobile-structure-detection-complete`), (2) migrated-mobile-structural-summary in the **same shape** (rowCount, rows with itemCount, topLevelMenuItemCount), (3) `compare-mobile-structural-schema.js` (source = mobile-structure-detection, migrated = migrated-mobile-structural-summary) → mobile-schema-register. **Hook:** Gate and Stop require `.mobile-structure-detection-complete` when phase-4 exists; block message tells user to run detect-mobile-structure.js first. **When mobile has extra rows/items or images/text not on desktop:** add to nav.plain.html in a mobile-only section and to mobile missing-content-register; hook blocks until resolved.
@@ -125,7 +125,7 @@ This document maps the current navigation orchestrator policy (4 key critique co
 - **Hooks:** `nav-validation-gates/checks.js`, `nav-validation-gates/gate-table.js`, `nav-validation-gate.js`, `nav-validation-gates/workflow-progress.js`
 - **Schemas:** `references/style-register-schema.json`, `references/mobile-navigation-agent-schema.json` (splitLinkPattern already required)
 - **Skill:** `SKILL.md` (Steps 12, 14, 15; completion message; skipped-component instruction; mobile-dimensional-gate)
-- **Scripts:** `scripts/mobile-dimensional-gate.js` (live DOM width checks; run before Step 13 / completion)
+- **Scripts:** `blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js` (live DOM width checks; run before Step 13 / completion)
 - **Critique:** `nav-component-critique/SKILL.md`, `nav-component-critique/key-component-agents/*.md`, `key-component-agents/README.md`
 - **References:** `validation-artifacts.md`, `reference-index.md`, this summary
 

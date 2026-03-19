@@ -4,7 +4,7 @@
  * Use before accepting any sub-agent output (orchestrator step gate).
  * No external dependencies (Node only).
  *
- * Usage: node scripts/validate-output.js <path-to-output.json> <path-to-schema.json>
+ * Usage: node blocks/header/navigation-validation/scripts/validate-output.js <path-to-output.json> <path-to-schema.json>
  * Exit: 0 if valid, 1 if invalid (errors to stderr).
  */
 

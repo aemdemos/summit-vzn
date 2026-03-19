@@ -74,7 +74,7 @@ Orchestrator **cannot** proceed to implementation until:
 
 ## Schema conformance (required)
 
-Output MUST validate against `../references/megamenu-schema.json`. All required fields (triggerType, columnCount, hasImages, hasBlockStructure, nestedLevels, animationType, hoverOutBehavior, clickOutBehavior, promotionalBlocks, gridStructure, confidence, uncertainty, notes) must be present; no additional properties. Orchestrator runs `scripts/validate-output.js` before accepting; failure rejects output.
+Output MUST validate against `../references/megamenu-schema.json`. All required fields (triggerType, columnCount, hasImages, hasBlockStructure, nestedLevels, animationType, hoverOutBehavior, clickOutBehavior, promotionalBlocks, gridStructure, confidence, uncertainty, notes) must be present; no additional properties. Orchestrator runs `blocks/header/navigation-validation/scripts/validate-output.js` before accepting; failure rejects output.
 
 ## Example
 
@@ -90,7 +90,7 @@ Output MUST validate against `../references/megamenu-schema.json`. All required 
 **Paraphrased:** "How is the dropdown panel structured?", "Detect megamenu layout from screenshot".
 **Do NOT use for:** Simple dropdowns without mega-panel, mobile menus, or without open-state screenshot.
 
-**Functional:** Confirm output validates with `node scripts/validate-output.js <output.json> references/megamenu-schema.json`.
+**Functional:** Confirm output validates with `node blocks/header/navigation-validation/scripts/validate-output.js <output.json> references/megamenu-schema.json`.
 
 ## Troubleshooting
 

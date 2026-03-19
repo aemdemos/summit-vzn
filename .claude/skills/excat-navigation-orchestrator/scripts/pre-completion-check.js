@@ -8,9 +8,9 @@
  * components "validated" with lastSimilarity < 95% and then send the completion message.
  *
  * Usage:
- *   node scripts/pre-completion-check.js
- *   node scripts/pre-completion-check.js [--validation-dir=blocks/header/navigation-validation]
- *   node scripts/pre-completion-check.js /path/to/workspace
+ *   node blocks/header/navigation-validation/scripts/pre-completion-check.js
+ *   node blocks/header/navigation-validation/scripts/pre-completion-check.js [--validation-dir=blocks/header/navigation-validation]
+ *   node blocks/header/navigation-validation/scripts/pre-completion-check.js /path/to/workspace
  *
  * Exit codes:
  *   0 = All conditions pass — safe to announce completion.

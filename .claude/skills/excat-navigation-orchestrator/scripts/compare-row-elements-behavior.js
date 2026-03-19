@@ -8,10 +8,10 @@
  * for every desktop header row element (logo, nav links, CTA, search, locale, hamburger, icons, etc.).
  *
  * Usage:
- *   node scripts/compare-row-elements-behavior.js <source-mapping> <migrated-mapping> [--output=<register-path>]
+ *   node blocks/header/navigation-validation/scripts/compare-row-elements-behavior.js <source-mapping> <migrated-mapping> [--output=<register-path>]
  *
  * Example:
- *   node scripts/compare-row-elements-behavior.js \
+ *   node blocks/header/navigation-validation/scripts/compare-row-elements-behavior.js \
  *     blocks/header/navigation-validation/row-elements-mapping.json \
  *     blocks/header/navigation-validation/migrated-row-elements-mapping.json \
  *     --output=blocks/header/navigation-validation/row-elements-behavior-register.json

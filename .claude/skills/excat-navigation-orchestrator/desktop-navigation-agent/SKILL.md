@@ -84,7 +84,7 @@ Output MUST validate against the orchestrator skill schema:
 - **rowDetection:** `../references/desktop-navigation-agent-schema.json` (first oneOf branch).
 - **rowMapping:** `../references/desktop-navigation-agent-schema.json` (second oneOf branch).
 
-Orchestrator will run `node scripts/validate-output.js <output.json> references/desktop-navigation-agent-schema.json`. If validation fails, output is rejected; do not add extra properties or omit required fields.
+Orchestrator will run `node blocks/header/navigation-validation/scripts/validate-output.js <output.json> references/desktop-navigation-agent-schema.json`. If validation fails, output is rejected; do not add extra properties or omit required fields.
 
 ## Example
 
@@ -100,7 +100,7 @@ Orchestrator will run `node scripts/validate-output.js <output.json> references/
 **Paraphrased:** "How many rows does this header have?", "What's in each header row?".
 **Do NOT use for:** Mobile nav, megamenu analysis, or without a desktop header screenshot.
 
-**Functional:** Confirm output validates with `node scripts/validate-output.js <output.json> references/desktop-navigation-agent-schema.json`.
+**Functional:** Confirm output validates with `node blocks/header/navigation-validation/scripts/validate-output.js <output.json> references/desktop-navigation-agent-schema.json`.
 
 ## Troubleshooting
 

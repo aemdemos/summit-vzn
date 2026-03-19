@@ -21,7 +21,7 @@
  *
  * USAGE:
  *   Standalone (Node + Playwright):
- *     node scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=<path>] [--viewport=375x812]
+ *     node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=<path>] [--viewport=375x812]
  *   During migration (browser_evaluate): paste runGate(375) or runGate(375, { ... }) body;
  *   runGate is exported for MCP/browser — inject detectMenuList, buildContainerChain, elementLabel first.
  *
@@ -370,8 +370,8 @@ async function main() {
   }
 
   if (!url) {
-    console.error('Usage: node scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=<path>] [--viewport=375x812]');
-    console.error('Example: node scripts/mobile-dimensional-gate.js --url=http://localhost:3000/content/index --validation-dir=blocks/header/navigation-validation');
+    console.error('Usage: node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> [--validation-dir=<path>] [--viewport=375x812]');
+    console.error('Example: node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=http://localhost:3000/content/index --validation-dir=blocks/header/navigation-validation');
     process.exit(2);
   }
 

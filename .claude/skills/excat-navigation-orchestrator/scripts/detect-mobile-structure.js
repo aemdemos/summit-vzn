@@ -15,7 +15,7 @@
  * nav.plain.html in a mobile-only section (mobile missing-content-register).
  *
  * Usage:
- *   node scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=<path>] [--viewport=375x812]
+ *   node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=<path>] [--viewport=375x812]
  *
  * Exit: 0 = success; 1 = script error; 2 = usage error.
  */
@@ -66,8 +66,8 @@ function parseArgs() {
 async function main() {
   const { url, validationDir, viewport } = parseArgs();
   if (!url) {
-    console.error('Usage: node scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=<path>] [--viewport=375x812]');
-    console.error('Example: node scripts/detect-mobile-structure.js --url=https://www.example.com --validation-dir=blocks/header/navigation-validation');
+    console.error('Usage: node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=<path>] [--viewport=375x812]');
+    console.error('Example: node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=https://www.example.com --validation-dir=blocks/header/navigation-validation');
     process.exit(2);
   }
 

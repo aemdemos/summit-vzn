@@ -6,7 +6,7 @@
  * Optional: --output-register=<path> writes schema-register.json with per-component status.
  *
  * Usage:
- *   node scripts/compare-structural-schema.js <phase-1.json> <phase-2.json> <phase-3.json> <migrated-structural-summary.json> [--threshold=95] [--output-register=schema-register.json]
+ *   node blocks/header/navigation-validation/scripts/compare-structural-schema.js <phase-1.json> <phase-2.json> <phase-3.json> <migrated-structural-summary.json> [--threshold=95] [--output-register=schema-register.json]
  */
 
 import fs from 'fs';

@@ -244,7 +244,7 @@ export function checkImageManifestParity(workspaceRoot) {
   const markerPath = path.join(workspaceRoot, IMAGE_MANIFEST_COMPARE_MARKER);
   if (!fs.existsSync(srcPath) || !fs.existsSync(migPath)) return null;
   if (!fs.existsSync(markerPath)) {
-    return `source-image-manifest.json and migrated-image-manifest.json exist but audit-header-images.js --compare has NOT been run or did not pass. Run: node scripts/audit-header-images.js --compare=blocks/header/navigation-validation/source-image-manifest.json --against=blocks/header/navigation-validation/migrated-image-manifest.json --validation-dir=blocks/header/navigation-validation`;
+    return `source-image-manifest.json and migrated-image-manifest.json exist but audit-header-images.js --compare has NOT been run or did not pass. Run: node blocks/header/navigation-validation/scripts/audit-header-images.js --compare=blocks/header/navigation-validation/source-image-manifest.json --against=blocks/header/navigation-validation/migrated-image-manifest.json --validation-dir=blocks/header/navigation-validation`;
   }
   return null;
 }
@@ -289,7 +289,7 @@ export function checkImageAudit(workspaceRoot) {
   const markerPath = path.join(workspaceRoot, IMAGE_AUDIT_MARKER);
   const reportPath = path.join(workspaceRoot, IMAGE_AUDIT_REPORT);
   if (!fs.existsSync(markerPath)) {
-    return `content/nav.plain.html exists but audit-header-images.js has NOT been run. Run: node scripts/audit-header-images.js content/nav.plain.html blocks/header/navigation-validation — compares expected image count (from phase-2/3 and megamenu-mapping) to actual images in nav and on disk; blocks until no gap.`;
+    return `content/nav.plain.html exists but audit-header-images.js has NOT been run. Run: node blocks/header/navigation-validation/scripts/audit-header-images.js content/nav.plain.html blocks/header/navigation-validation — compares expected image count (from phase-2/3 and megamenu-mapping) to actual images in nav and on disk; blocks until no gap.`;
   }
   if (fs.existsSync(reportPath)) {
     const report = loadJson(reportPath);
@@ -580,7 +580,7 @@ export function checkMobileRegisters(workspaceRoot) {
 
   const mobileStructureMarker = path.join(workspaceRoot, MOBILE_STRUCTURE_DETECTION_MARKER);
   if (!fs.existsSync(mobileStructureMarker)) {
-    errors.push('[MOBILE] detect-mobile-structure.js has NOT been run. Run: node scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. When mobile has extra images/text, add to nav.plain.html mobile-only section and mobile missing-content-register.');
+    errors.push('[MOBILE] detect-mobile-structure.js has NOT been run. Run: node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. When mobile has extra images/text, add to nav.plain.html mobile-only section and mobile missing-content-register.');
   }
 
   const phase4 = loadJson(phase4Path);
@@ -589,7 +589,7 @@ export function checkMobileRegisters(workspaceRoot) {
   if (phase4 && !phase4.overlayBehavior) errors.push('phase-4-mobile.json missing overlayBehavior — check if source mobile menu has backdrop overlay.');
   const mobileSchemaReg = loadJson(path.join(workspaceRoot, MOBILE_SCHEMA_REGISTER));
   if (!fs.existsSync(path.join(workspaceRoot, MOBILE_SCHEMA_REGISTER))) {
-    errors.push('mobile-schema-register.json does NOT exist. Run detect-mobile-structure.js first, then extract migrated-mobile-structural-summary.json (same shape as mobile-structure-detection.json), then: node scripts/compare-mobile-structural-schema.js .../mobile/mobile-structure-detection.json .../mobile/migrated-mobile-structural-summary.json --output-register=.../mobile/mobile-schema-register.json');
+    errors.push('mobile-schema-register.json does NOT exist. Run detect-mobile-structure.js first, then extract migrated-mobile-structural-summary.json (same shape as mobile-structure-detection.json), then: node blocks/header/navigation-validation/scripts/compare-mobile-structural-schema.js .../mobile/mobile-structure-detection.json .../mobile/migrated-mobile-structural-summary.json --output-register=.../mobile/mobile-schema-register.json');
   } else if (mobileSchemaReg) {
     if (!mobileSchemaReg.allValidated) errors.push('mobile-schema-register.json allValidated=false. Fix mobile structural mismatches.');
     for (const it of (mobileSchemaReg.items || [])) {
@@ -670,7 +670,7 @@ export function checkMobileDimensionalGate(workspaceRoot) {
   const reportPath = path.join(workspaceRoot, MOBILE_DIMENSIONAL_GATE_REPORT);
   if (!fs.existsSync(reportPath)) {
     errors.push(
-      '[MOBILE] mobile-dimensional-gate has NOT been run. Run: node scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation (viewport 375×812). Open hamburger, then fix any failed checks (e.g. .nav-list width: 100%) until the script exits 0. Do not build mobile-style-register or announce completion until the gate passes.',
+      '[MOBILE] mobile-dimensional-gate has NOT been run. Run: node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation (viewport 375×812). Open hamburger, then fix any failed checks (e.g. .nav-list width: 100%) until the script exits 0. Do not build mobile-style-register or announce completion until the gate passes.',
     );
     remediation.push(
       '[MOBILE-DIMENSIONAL-GATE] Run mobile-dimensional-gate.js against the migrated site at 375×812. Fix CSS so menu list and nav items span full viewport width; re-run until exit 0.',
@@ -682,7 +682,7 @@ export function checkMobileDimensionalGate(workspaceRoot) {
   if (!report || report.passed !== true) {
     const summary = report?.summary || 'report missing or invalid';
     errors.push(
-      `[MOBILE] mobile-dimensional-gate report exists but passed is not true: ${summary}. Fix CSS (e.g. .nav-list and .nav-item width: 100%) and re-run: node scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation. Do not proceed until the gate passes.`,
+      `[MOBILE] mobile-dimensional-gate report exists but passed is not true: ${summary}. Fix CSS (e.g. .nav-list and .nav-item width: 100%) and re-run: node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation. Do not proceed until the gate passes.`,
     );
     remediation.push(
       '[MOBILE-DIMENSIONAL-GATE] Re-run mobile-dimensional-gate.js. Apply fixes from failed checks (menu list width, nav-item width, edge-to-edge alignment). Repeat until report shows passed: true.',

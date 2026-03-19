@@ -373,15 +373,15 @@ export const POST_TOOL_USE_GATES = [
       const rowDetectionComplete = fs.existsSync(path.join(wr, VALIDATION_DIR, ROW_DETECTION_MARKER));
       if (phase1Exists && !rowDetectionComplete) {
         ctx.log?.('INFO', '[ROW-DETECTION] Gate 6a0: phase-1 exists but detect-header-rows.js not run — blocking');
-        blocks.push('phase-1-row-detection.json exists but detect-header-rows.js has NOT been run.\n  → Run FIRST: node scripts/detect-header-rows.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation]\n  The script uses Playwright to count header rows programmatically (getBoundingClientRect, getComputedStyle). Never set rowCount from screenshot alone. The script writes phase-1 and .row-detection-complete. Until that marker exists, phase-1 is invalid.');
+        blocks.push('phase-1-row-detection.json exists but detect-header-rows.js has NOT been run.\n  → Run FIRST: node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation]\n  The script uses Playwright to count header rows programmatically (getBoundingClientRect, getComputedStyle). Never set rowCount from screenshot alone. The script writes phase-1 and .row-detection-complete. Until that marker exists, phase-1 is invalid.');
       }
       if (ctx.basename === 'phase-1-row-detection.json' && !rowDetectionComplete) {
         ctx.log?.('INFO', '[ROW-DETECTION] Gate 6a0: cannot write phase-1 without running detect-header-rows.js first');
-        blocks.push('Do NOT write phase-1-row-detection.json manually. Run detect-header-rows.js first:\n  → node scripts/detect-header-rows.js --url=<source-url>\n  The script produces phase-1 from programmatic measurement. Screenshot-based row count misses small rows (e.g. 40px utility bar).');
+        blocks.push('Do NOT write phase-1-row-detection.json manually. Run detect-header-rows.js first:\n  → node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url>\n  The script produces phase-1 from programmatic measurement. Screenshot-based row count misses small rows (e.g. 40px utility bar).');
       }
       if (ctx.basename === 'phase-2-row-mapping.json' && !rowDetectionComplete) {
         ctx.log?.('INFO', '[ROW-DETECTION] Gate 6a0: cannot write phase-2 until detect-header-rows.js has run');
-        blocks.push('Do NOT write phase-2-row-mapping.json until Phase 1 is produced by the script.\n  → Run FIRST: node scripts/detect-header-rows.js --url=<source-url>\n  Then proceed to Phase 2 (row element mapping).');
+        blocks.push('Do NOT write phase-2-row-mapping.json until Phase 1 is produced by the script.\n  → Run FIRST: node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url>\n  Then proceed to Phase 2 (row element mapping).');
       }
 
       // 6a-mobile: block mobile files until desktop complete and phase-4 exists
@@ -403,13 +403,13 @@ export const POST_TOOL_USE_GATES = [
       if (navFilePath && !navValidated && !isNavContentFile(ctx.filePath)) {
         const navRel = path.relative(wr, navFilePath);
         const navBasename = path.basename(navFilePath);
-        blocks.push(`${navRel} exists but validate-nav-content.js has NOT been run.\n  → Run NOW: node scripts/validate-nav-content.js content/${navBasename} blocks/header/navigation-validation\n  The script writes a marker file (.nav-content-validated) on success. Until that marker exists, further edits are blocked.`);
+        blocks.push(`${navRel} exists but validate-nav-content.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/validate-nav-content.js content/${navBasename} blocks/header/navigation-validation\n  The script writes a marker file (.nav-content-validated) on success. Until that marker exists, further edits are blocked.`);
       }
 
       // 6a2: image audit — expected vs actual header images (phase-2/3 + megamenu-mapping vs nav + on-disk)
       const imageAuditPassed = fs.existsSync(path.join(wr, IMAGE_AUDIT_MARKER));
       if (navFilePath && navValidated && !imageAuditPassed && !isNavContentFile(ctx.filePath)) {
-        blocks.push(`validate-nav-content.js passed but audit-header-images.js has NOT been run.\n  → Run NOW: node scripts/audit-header-images.js content/nav.plain.html blocks/header/navigation-validation\n  The script compares expected image count (from phase-2, phase-3, megamenu-mapping) to images referenced in nav and on disk. If there is a gap, it reports where the miss is (e.g. megamenu feature cards). Fix missing downloads, re-run validate-nav-content.js then audit-header-images.js.`);
+        blocks.push(`validate-nav-content.js passed but audit-header-images.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/audit-header-images.js content/nav.plain.html blocks/header/navigation-validation\n  The script compares expected image count (from phase-2, phase-3, megamenu-mapping) to images referenced in nav and on disk. If there is a gap, it reports where the miss is (e.g. megamenu feature cards). Fix missing downloads, re-run validate-nav-content.js then audit-header-images.js.`);
       }
 
       // 6b
@@ -417,7 +417,7 @@ export const POST_TOOL_USE_GATES = [
       const behaviorRegExists = fs.existsSync(path.join(wr, MEGAMENU_BEHAVIOR_REGISTER));
       if (migratedMmExists && !behaviorRegExists && hasMegamenu(wr)) {
         if (ctx.basename !== 'migrated-megamenu-mapping.json') {
-          blocks.push('migrated-megamenu-mapping.json exists but compare-megamenu-behavior.js has NOT been run.\n  → Run NOW: node scripts/compare-megamenu-behavior.js blocks/header/navigation-validation/megamenu-mapping.json blocks/header/navigation-validation/migrated-megamenu-mapping.json --output=blocks/header/navigation-validation/megamenu-behavior-register.json');
+          blocks.push('migrated-megamenu-mapping.json exists but compare-megamenu-behavior.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/compare-megamenu-behavior.js blocks/header/navigation-validation/megamenu-mapping.json blocks/header/navigation-validation/migrated-megamenu-mapping.json --output=blocks/header/navigation-validation/megamenu-behavior-register.json');
         }
       }
 
@@ -425,7 +425,7 @@ export const POST_TOOL_USE_GATES = [
       const migratedStructExists = fs.existsSync(path.join(wr, VALIDATION_DIR, 'migrated-structural-summary.json'));
       const schemaRegExists = fs.existsSync(path.join(wr, SCHEMA_REGISTER));
       if (migratedStructExists && !schemaRegExists && ctx.basename !== 'migrated-structural-summary.json') {
-        blocks.push('migrated-structural-summary.json exists but compare-structural-schema.js has NOT been run.\n  → Run NOW: node scripts/compare-structural-schema.js blocks/header/navigation-validation/phase-1-row-detection.json blocks/header/navigation-validation/phase-2-row-mapping.json blocks/header/navigation-validation/phase-3-megamenu.json blocks/header/navigation-validation/migrated-structural-summary.json --threshold=95 --output-register=blocks/header/navigation-validation/schema-register.json');
+        blocks.push('migrated-structural-summary.json exists but compare-structural-schema.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/compare-structural-schema.js blocks/header/navigation-validation/phase-1-row-detection.json blocks/header/navigation-validation/phase-2-row-mapping.json blocks/header/navigation-validation/phase-3-megamenu.json blocks/header/navigation-validation/migrated-structural-summary.json --threshold=95 --output-register=blocks/header/navigation-validation/schema-register.json');
       }
 
       // 6d removed: style-register is built at critique step; do not block CSS edits for pending components
@@ -443,14 +443,14 @@ export const POST_TOOL_USE_GATES = [
       // 6e: mobile structure detection (same as desktop — programmatic row/item count before structural validation)
       const phase4ExistsForMobile = fs.existsSync(path.join(wr, VALIDATION_DIR, 'phase-4-mobile.json'));
       if (phase4ExistsForMobile && !fs.existsSync(path.join(wr, MOBILE_STRUCTURE_DETECTION_MARKER))) {
-        blocks.push('[MOBILE] detect-mobile-structure.js has NOT been run.\n  → Run FIRST: node scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. Writes mobile/mobile-structure-detection.json and .mobile-structure-detection-complete.');
+        blocks.push('[MOBILE] detect-mobile-structure.js has NOT been run.\n  → Run FIRST: node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. Writes mobile/mobile-structure-detection.json and .mobile-structure-detection-complete.');
       }
 
       // 6f
       const mobileMigratedStructExists = fs.existsSync(path.join(wr, MOBILE_DIR, 'migrated-mobile-structural-summary.json'));
       const mobileSchemaRegExists = fs.existsSync(path.join(wr, MOBILE_SCHEMA_REGISTER));
       if (mobileMigratedStructExists && !mobileSchemaRegExists && ctx.basename !== 'migrated-mobile-structural-summary.json') {
-        blocks.push('[MOBILE] migrated-mobile-structural-summary.json exists but mobile-schema-register.json does NOT.\n  → Run: node scripts/compare-mobile-structural-schema.js blocks/header/navigation-validation/mobile/mobile-structure-detection.json blocks/header/navigation-validation/mobile/migrated-mobile-structural-summary.json --output-register=blocks/header/navigation-validation/mobile/mobile-schema-register.json');
+        blocks.push('[MOBILE] migrated-mobile-structural-summary.json exists but mobile-schema-register.json does NOT.\n  → Run: node blocks/header/navigation-validation/scripts/compare-mobile-structural-schema.js blocks/header/navigation-validation/mobile/mobile-structure-detection.json blocks/header/navigation-validation/mobile/migrated-mobile-structural-summary.json --output-register=blocks/header/navigation-validation/mobile/mobile-schema-register.json');
       }
 
       // 6g removed: mobile-style-register is built at critique step; do not block CSS edits for pending components
@@ -470,14 +470,14 @@ export const POST_TOOL_USE_GATES = [
       const migratedRowElementsExists = fs.existsSync(path.join(wr, VALIDATION_DIR, 'migrated-row-elements-mapping.json'));
       const rowElementsBehaviorRegExists = fs.existsSync(path.join(wr, ROW_ELEMENTS_BEHAVIOR_REGISTER));
       if (migratedRowElementsExists && !rowElementsBehaviorRegExists && hasRowElements(wr) && ctx.basename !== 'migrated-row-elements-mapping.json') {
-        blocks.push('migrated-row-elements-mapping.json exists but compare-row-elements-behavior.js has NOT been run.\n  → Run NOW: node scripts/compare-row-elements-behavior.js blocks/header/navigation-validation/row-elements-mapping.json blocks/header/navigation-validation/migrated-row-elements-mapping.json --output=blocks/header/navigation-validation/row-elements-behavior-register.json');
+        blocks.push('migrated-row-elements-mapping.json exists but compare-row-elements-behavior.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/compare-row-elements-behavior.js blocks/header/navigation-validation/row-elements-mapping.json blocks/header/navigation-validation/migrated-row-elements-mapping.json --output=blocks/header/navigation-validation/row-elements-behavior-register.json');
       }
 
       // 6j
       if (ctx.basename === 'migrated-structural-summary.json' && hasRowElements(wr)) {
         const rowReg = loadJson(path.join(wr, ROW_ELEMENTS_BEHAVIOR_REGISTER));
         if (!rowReg || !rowReg.allValidated) {
-          blocks.push('Row elements behavior validation (Step 5a) must complete BEFORE structural validation (Step 6).\n  → Create row-elements-mapping.json (hover/click every row element on SOURCE), then migrated-row-elements-mapping.json (on MIGRATED page),\n  → Run: node scripts/compare-row-elements-behavior.js ... --output=row-elements-behavior-register.json\n  → Require row-elements-behavior-register.json allValidated: true before writing migrated-structural-summary.json.');
+          blocks.push('Row elements behavior validation (Step 5a) must complete BEFORE structural validation (Step 6).\n  → Create row-elements-mapping.json (hover/click every row element on SOURCE), then migrated-row-elements-mapping.json (on MIGRATED page),\n  → Run: node blocks/header/navigation-validation/scripts/compare-row-elements-behavior.js ... --output=row-elements-behavior-register.json\n  → Require row-elements-behavior-register.json allValidated: true before writing migrated-structural-summary.json.');
         }
       }
 
@@ -494,7 +494,7 @@ export const POST_TOOL_USE_GATES = [
           if (!migratedHeaderAppearanceExists) {
             blocks.push('header-appearance-mapping.json exists but migrated-header-appearance-mapping.json does NOT.\n  → On the migrated page, test: does the header bar change (background, shadow, border) when hovering nav items or when megamenu is open? Create migrated-header-appearance-mapping.json with same schema (including headerBackgroundBehavior).');
           } else if (!headerAppearanceRegExists && ctx.basename !== 'migrated-header-appearance-mapping.json') {
-            blocks.push('migrated-header-appearance-mapping.json exists but compare-header-appearance.js has NOT been run.\n  → Run NOW: node scripts/compare-header-appearance.js blocks/header/navigation-validation/header-appearance-mapping.json blocks/header/navigation-validation/migrated-header-appearance-mapping.json --output=blocks/header/navigation-validation/header-appearance-register.json');
+            blocks.push('migrated-header-appearance-mapping.json exists but compare-header-appearance.js has NOT been run.\n  → Run NOW: node blocks/header/navigation-validation/scripts/compare-header-appearance.js blocks/header/navigation-validation/header-appearance-mapping.json blocks/header/navigation-validation/migrated-header-appearance-mapping.json --output=blocks/header/navigation-validation/header-appearance-register.json');
           }
         }
       }
@@ -702,7 +702,7 @@ export const POST_TOOL_USE_GATES = [
       }
       const dimGateResult = checkMobileDimensionalGate(wr);
       if (dimGateResult.errors.length > 0) {
-        const msg = `🚫 [Nav Gate] [MOBILE] mobile-style-register.json is BLOCKED until mobile-dimensional-gate passes.\n\n${dimGateResult.errors.join('\n\n')}\n\nRun: node scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation (viewport 375×812). Fix any failed checks (e.g. .nav-list and .nav-item width: 100%) and re-run until exit 0.`;
+        const msg = `🚫 [Nav Gate] [MOBILE] mobile-style-register.json is BLOCKED until mobile-dimensional-gate passes.\n\n${dimGateResult.errors.join('\n\n')}\n\nRun: node blocks/header/navigation-validation/scripts/mobile-dimensional-gate.js --url=<migrated-url> --validation-dir=blocks/header/navigation-validation (viewport 375×812). Fix any failed checks (e.g. .nav-list and .nav-item width: 100%) and re-run until exit 0.`;
         return { pass: false, message: msg };
       }
       return { pass: true };

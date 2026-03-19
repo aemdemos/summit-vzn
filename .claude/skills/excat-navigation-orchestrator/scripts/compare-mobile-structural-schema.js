@@ -12,7 +12,7 @@
  * missing-content-register.json.
  *
  * Usage:
- *   node scripts/compare-mobile-structural-schema.js <mobile-structure-detection.json> <migrated-mobile-structural-summary.json> [--threshold=95] [--output-register=mobile/mobile-schema-register.json]
+ *   node blocks/header/navigation-validation/scripts/compare-mobile-structural-schema.js <mobile-structure-detection.json> <migrated-mobile-structural-summary.json> [--threshold=95] [--output-register=mobile/mobile-schema-register.json]
  *
  * Exit: 0 if similarity >= threshold; 1 otherwise.
  */

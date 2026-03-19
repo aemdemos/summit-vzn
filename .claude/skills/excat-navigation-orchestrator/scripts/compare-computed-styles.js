@@ -11,7 +11,7 @@
  * a critique-report.json with similarity score, diffs, and CSS fix suggestions.
  *
  * Usage:
- *   node scripts/compare-computed-styles.js \
+ *   node blocks/header/navigation-validation/scripts/compare-computed-styles.js \
  *     <source-styles.json> <migrated-styles.json> \
  *     --component-id=<id> \
  *     --output=<critique-report.json>

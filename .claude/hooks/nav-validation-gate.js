@@ -203,7 +203,7 @@ function handleStop(hookInput) {
   const phase1Path = path.join(workspaceRoot, VALIDATION_DIR, 'phase-1-row-detection.json');
   const rowDetectionMarkerPath = path.join(workspaceRoot, VALIDATION_DIR, ROW_DETECTION_MARKER);
   if (fs.existsSync(phase1Path) && !fs.existsSync(rowDetectionMarkerPath)) {
-    allErrors.push('phase-1-row-detection.json exists but detect-header-rows.js has NOT been run. Run: node scripts/detect-header-rows.js --url=<source-url> — programmatic row detection is mandatory; never set rowCount from screenshot alone.');
+    allErrors.push('phase-1-row-detection.json exists but detect-header-rows.js has NOT been run. Run: node blocks/header/navigation-validation/scripts/detect-header-rows.js --url=<source-url> — programmatic row detection is mandatory; never set rowCount from screenshot alone.');
     log('INFO', '[ROW-DETECTION] .row-detection-complete missing — detect-header-rows.js not run');
   }
 
@@ -256,7 +256,7 @@ function handleStop(hookInput) {
     const navValidatedPath = path.join(workspaceRoot, VALIDATION_DIR, '.nav-content-validated');
     if (!fs.existsSync(navValidatedPath)) {
       const navBasename = path.basename(navFilePath);
-      allErrors.push(`${path.relative(workspaceRoot, navFilePath)} exists but validate-nav-content.js has NOT been run. Run: node scripts/validate-nav-content.js content/${navBasename} blocks/header/navigation-validation — validates image existence and size > 0.`);
+      allErrors.push(`${path.relative(workspaceRoot, navFilePath)} exists but validate-nav-content.js has NOT been run. Run: node blocks/header/navigation-validation/scripts/validate-nav-content.js content/${navBasename} blocks/header/navigation-validation — validates image existence and size > 0.`);
       log('INFO', '[NAV-CONTENT] .nav-content-validated missing — validate-nav-content.js not run');
     }
     log('INFO', 'Stop check: image audit (expected vs actual header images)...');
@@ -387,7 +387,7 @@ function handleStop(hookInput) {
     log('INFO', 'Stop check: mobile-structure-detection...');
     const mobileStructureMarker = path.join(workspaceRoot, MOBILE_STRUCTURE_DETECTION_MARKER);
     if (!fs.existsSync(mobileStructureMarker)) {
-      allErrors.push('[MOBILE] detect-mobile-structure.js has NOT been run. Run: node scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. When mobile has extra images/text not on desktop, add to nav.plain.html in a mobile-only section and mobile missing-content-register.');
+      allErrors.push('[MOBILE] detect-mobile-structure.js has NOT been run. Run: node blocks/header/navigation-validation/scripts/detect-mobile-structure.js --url=<source-url> [--validation-dir=blocks/header/navigation-validation] (viewport 375×812). Same as desktop: programmatic row and item count before mobile structural validation. When mobile has extra images/text not on desktop, add to nav.plain.html in a mobile-only section and mobile missing-content-register.');
     }
 
     log('INFO', 'Stop check: hamburger-animation...');

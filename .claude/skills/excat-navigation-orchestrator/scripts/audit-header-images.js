@@ -8,15 +8,15 @@
  * 1) NAV MODE (expected vs actual from phase files):
  *    Compares EXPECTED header/nav images (from phase-2, phase-3, megamenu-mapping)
  *    with ACTUAL images in nav.plain.html and on disk.
- *    Usage: node scripts/audit-header-images.js <nav-file> <validation-dir>
+ *    Usage: node blocks/header/navigation-validation/scripts/audit-header-images.js <nav-file> <validation-dir>
  *
  * 2) URL MODE (produce image manifest from live page):
  *    Navigate to URL, collect ALL images in header: <img>, <svg>, CSS background-image.
- *    Usage: node scripts/audit-header-images.js --url=<url> --output=<manifest.json>
+ *    Usage: node blocks/header/navigation-validation/scripts/audit-header-images.js --url=<url> --output=<manifest.json>
  *
  * 3) COMPARE MODE (source vs migrated manifest):
  *    Require migrated.total >= source.total; list source images not in migrated.
- *    Usage: node scripts/audit-header-images.js --compare=source-manifest.json --against=migrated-manifest.json [--validation-dir=...]
+ *    Usage: node blocks/header/navigation-validation/scripts/audit-header-images.js --compare=source-manifest.json --against=migrated-manifest.json [--validation-dir=...]
  *
  * Exit codes: 0 = pass, 1 = fail, 2 = usage error
  */

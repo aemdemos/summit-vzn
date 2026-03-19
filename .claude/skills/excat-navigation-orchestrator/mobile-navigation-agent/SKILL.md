@@ -217,7 +217,7 @@ Return only this shape. No prose.
 
 ## Schema conformance (required)
 
-Output MUST validate against `../references/mobile-navigation-agent-schema.json`. Required fields: breakpointPx, menuTrigger, hamburgerAnimation, openBehavior, mobileMenuLayout, menuItemsWidthLayout, accordionBehavior, overlayBehavior, tapVsHover, nestedBehavior, hasMegamenuOnMobile, hasSearchForm, hasLocaleSelector, confidence, uncertainty, notes. If `openBehavior: "slide-in-panel"`, include `slideInPanelBehavior` with all required sub-fields. Orchestrator validates with `scripts/validate-output.js`; if validation fails, output is rejected.
+Output MUST validate against `../references/mobile-navigation-agent-schema.json`. Required fields: breakpointPx, menuTrigger, hamburgerAnimation, openBehavior, mobileMenuLayout, menuItemsWidthLayout, accordionBehavior, overlayBehavior, tapVsHover, nestedBehavior, hasMegamenuOnMobile, hasSearchForm, hasLocaleSelector, confidence, uncertainty, notes. If `openBehavior: "slide-in-panel"`, include `slideInPanelBehavior` with all required sub-fields. Orchestrator validates with `blocks/header/navigation-validation/scripts/validate-output.js`; if validation fails, output is rejected.
 
 ## Mobile Implementation Guidance
 
@@ -297,4 +297,4 @@ When the orchestrator implements mobile based on this analysis:
 **Paraphrased:** "What does the mobile nav look like?", "How does the hamburger menu work on mobile?".
 **Do NOT use for:** Desktop analysis, non-header mobile elements, implementation (this skill only produces analysis JSON).
 
-**Functional:** Run full analysis; confirm phase-4-mobile.json includes `hamburgerAnimation`, `accordionBehavior`, `overlayBehavior`, `mobileMenuItems`, `contentCoverage`, `hasSearchForm`, `hasLocaleSelector`. Validate JSON with `node scripts/validate-output.js phase-4-mobile.json ../references/mobile-navigation-agent-schema.json`.
+**Functional:** Run full analysis; confirm phase-4-mobile.json includes `hamburgerAnimation`, `accordionBehavior`, `overlayBehavior`, `mobileMenuItems`, `contentCoverage`, `hasSearchForm`, `hasLocaleSelector`. Validate JSON with `node blocks/header/navigation-validation/scripts/validate-output.js phase-4-mobile.json ../references/mobile-navigation-agent-schema.json`.

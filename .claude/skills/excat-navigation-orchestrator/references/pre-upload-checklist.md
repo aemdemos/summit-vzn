@@ -7,7 +7,7 @@ Per `docs/skill-development-guide.md` Section 8.
 - [x] Identified 2–3 concrete use cases
 - [x] Tools identified (built-in or MCP): Playwright MCP, validate-output.js, validate-nav-content.js, compare-* scripts
 - [x] Reviewed skill development guide and example skills
-- [x] Planned folder structure: SKILL.md, scripts/, references/, sub-agents (desktop-navigation-agent, megamenu-analysis-agent, mobile-navigation-agent, validation-agent, nav-component-critique)
+- [x] Planned folder structure: SKILL.md, blocks/header/navigation-validation/scripts/, references/, sub-agents (desktop-navigation-agent, megamenu-analysis-agent, mobile-navigation-agent, validation-agent, nav-component-critique)
 
 ## During development
 
@@ -37,7 +37,7 @@ Per `docs/skill-development-guide.md` Section 8.
 
 ## Validation vs docs/skill-development-guide.md
 
-- **Structure:** SKILL.md (exact name), references/, scripts/ — no README at skill root (key-component-agents/README.md is a subfolder reference for the 4 critique agents).
+- **Structure:** SKILL.md (exact name), references/, blocks/header/navigation-validation/scripts/ — no README at skill root (key-component-agents/README.md is a subfolder reference for the 4 critique agents).
 - **Naming:** Folder `excat-navigation-orchestrator` is kebab-case; frontmatter `name` matches.
 - **Frontmatter:** `---` delimiters present; `description` has WHAT + WHEN + trigger phrases; no XML in description. Description length may exceed 1024 chars (guide suggests under 1024); consider shortening if upload rejects.
 - **Instructions:** Step-by-step with examples; critical rules at top (Zero-Hallucination Rules); explicit checklists (e.g. Step 15 final gate); error handling via troubleshooting.md and hook blocks; references linked from SKILL (validation-artifacts.md, reference-index.md — one level deep).

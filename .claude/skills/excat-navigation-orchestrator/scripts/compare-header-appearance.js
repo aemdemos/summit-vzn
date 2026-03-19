@@ -8,10 +8,10 @@
  * on hover/click (background, shadow, border when nav items hovered or panel open).
  *
  * Usage:
- *   node scripts/compare-header-appearance.js <source-mapping> <migrated-mapping> [--output=<register-path>]
+ *   node blocks/header/navigation-validation/scripts/compare-header-appearance.js <source-mapping> <migrated-mapping> [--output=<register-path>]
  *
  * Example:
- *   node scripts/compare-header-appearance.js \
+ *   node blocks/header/navigation-validation/scripts/compare-header-appearance.js \
  *     blocks/header/navigation-validation/header-appearance-mapping.json \
  *     blocks/header/navigation-validation/migrated-header-appearance-mapping.json \
  *     --output=blocks/header/navigation-validation/header-appearance-register.json
