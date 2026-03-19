@@ -6,6 +6,10 @@
  * Selectors from captured DOM (migration-work/cleaned.html).
  * Removes non-authorable content: header, footer, quick links nav,
  * tooltips, cookie/consent elements, tracking attributes.
+ *
+ * Note: Image URL normalization (desktop promotion, webp-alpha fix, scl= param)
+ * is handled by import-homepage.js steps 6b-6c, not by this transformer.
+ * See the "Verizon Image Pipeline" comment block in import-homepage.js.
  */
 const TransformHook = { beforeTransform: 'beforeTransform', afterTransform: 'afterTransform' };
 

@@ -218,6 +218,67 @@ export default {
     WebImporter.rules.transformBackgroundImages(main, document);
     WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
 
+    // -----------------------------------------------------------------------
+    // Verizon Image Pipeline (steps 6b–6c)
+    //
+    // Context: Verizon uses Adobe Scene7 CDN (ss7.vzw.com / s7.vzw.com) with
+    // responsive <picture><source> elements. Three issues require post-processing:
+    //
+    // 1. DA SOURCE HANDLING — Document Authoring (DA) ignores <source> elements
+    //    and only uses <img src>. The original <img src> points to the mobile
+    //    (-m) variant, so DA would get low-res mobile images. We promote the
+    //    desktop (-d) URL from the first <source srcset> to <img src> and strip
+    //    all <source> elements. EDS handles responsive delivery independently.
+    //
+    // 2. DA CASE-SENSITIVITY — Verizon's CDN is fully case-sensitive on image
+    //    names. DA lowercases the -D/-T suffix when processing <source> elements
+    //    (e.g. Banner-D → Banner-d), which returns a "Image Coming Soon"
+    //    placeholder. Stripping <source> elements (step 6b) avoids this since
+    //    <img src> preserves case. Affected images: 25Tile-4newiPhone16-D,
+    //    Wave_HPM_skinny_Banner-D.
+    //
+    // 3. URL FORMAT CONSISTENCY — All Scene7 URLs must include an scl= param
+    //    for DA to process them consistently. Without it, some images fail in
+    //    DA. The webp-alpha format is also unsupported by DA, replaced with webp.
+    //
+    // 4. PARSER OVERRIDE — The WebImporter framework reconstructs <picture>
+    //    elements from the original DOM during HTML serialization, overriding
+    //    any parser-level URL normalization. Steps 6b-6c run post-serialization
+    //    to ensure the final output has correct URLs.
+    //
+    // Step order matters: 6b promotes desktop URLs → 6c normalizes all URLs.
+    // -----------------------------------------------------------------------
+
+    // 6b. Consolidate <picture> to desktop-only <img>.
+    // Promotes the first <source srcset> (desktop URL) to <img src>, then
+    // removes all <source> elements. Keeps <picture> wrapper for EDS compat.
+    main.querySelectorAll('picture').forEach((picture) => {
+      const desktopSource = picture.querySelector('source[srcset]');
+      if (desktopSource) {
+        const img = picture.querySelector('img');
+        if (img) {
+          const desktopUrl = desktopSource.getAttribute('srcset').split(' ')[0];
+          img.setAttribute('src', desktopUrl);
+          picture.querySelectorAll('source').forEach((s) => s.remove());
+        }
+      }
+    });
+
+    // 6c. Normalize all Verizon Scene7 image URLs.
+    // - webp-alpha → webp (DA cannot process webp-alpha format)
+    // - Ensure scl= param exists (DA requires consistent query string format)
+    // Runs AFTER 6b so that promoted desktop URLs also get normalized.
+    main.querySelectorAll('img[src]').forEach((el) => {
+      const val = el.getAttribute('src');
+      if (val && val.includes('vzw.com/is/image/')) {
+        let fixed = val.replace(/fmt=webp-alpha/g, 'fmt=webp');
+        if (!fixed.includes('scl=')) {
+          fixed += (fixed.includes('?') ? '&' : '?') + 'scl=2';
+        }
+        el.setAttribute('src', fixed);
+      }
+    });
+
     // 7. Generate sanitized path
     const path = WebImporter.FileUtils.sanitizePath(
       new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html$/, '') || '/index',

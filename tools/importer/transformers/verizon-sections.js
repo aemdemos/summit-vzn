@@ -6,6 +6,10 @@
  * Processes sections from payload.template.sections in reverse order.
  * Adds <hr> before each non-first section and Section Metadata blocks for styled sections.
  * Selectors from captured DOM (migration-work/cleaned.html).
+ *
+ * Note: This transformer handles section structure only (section breaks and style metadata).
+ * Image URL normalization is handled by import-homepage.js steps 6b-6c.
+ * See the "Verizon Image Pipeline" comment block in import-homepage.js.
  */
 const TransformHook = { beforeTransform: 'beforeTransform', afterTransform: 'afterTransform' };
 
