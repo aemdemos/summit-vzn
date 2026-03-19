@@ -41,18 +41,67 @@ var CustomImportScript = (() => {
   });
 
   // tools/importer/parsers/hero.js
+  function normalizeImageUrl(url) {
+    if (!url) return url;
+    try {
+      const u = new URL(url, "https://ss7.vzw.com");
+      const fmt = u.searchParams.get("fmt");
+      if (fmt === "webp-alpha") {
+        u.searchParams.set("fmt", "webp");
+      }
+      if (!u.searchParams.has("scl")) {
+        u.searchParams.set("scl", "2");
+      }
+      return u.toString();
+    } catch (e) {
+      return url.replace("fmt=webp-alpha", "fmt=webp");
+    }
+  }
+  function convertToDesktopUrl(url) {
+    if (url && url.includes("vzw.com/is/image/")) {
+      return url.replace(/([-_])([mt])(\?|$)/, "$1d$3");
+    }
+    return url;
+  }
+  function firstSrcsetUrl(srcset) {
+    var _a, _b;
+    return ((_b = (_a = srcset == null ? void 0 : srcset.split(",")[0]) == null ? void 0 : _a.trim()) == null ? void 0 : _b.split(" ")[0]) || null;
+  }
+  function extractDesktopImageUrl(picture) {
+    const sources = Array.from(picture.querySelectorAll("source[srcset]"));
+    const img = picture.querySelector("img");
+    const alt = (img == null ? void 0 : img.alt) || "";
+    for (const source of sources) {
+      const media = source.getAttribute("media") || "";
+      const match = media.match(/min-width:\s*(\d+)px/);
+      if (match && parseInt(match[1], 10) >= 900) {
+        const url = firstSrcsetUrl(source.getAttribute("srcset"));
+        if (url) return { url, alt };
+      }
+    }
+    for (const source of sources) {
+      if (!source.getAttribute("media")) {
+        const url = firstSrcsetUrl(source.getAttribute("srcset"));
+        if (url) return { url, alt };
+      }
+    }
+    if (sources.length > 0) {
+      const url = firstSrcsetUrl(sources[0].getAttribute("srcset"));
+      if (url) return { url: convertToDesktopUrl(url), alt };
+    }
+    const imgSrc = (img == null ? void 0 : img.getAttribute("src")) || (img == null ? void 0 : img.src);
+    if (imgSrc) return { url: convertToDesktopUrl(imgSrc), alt };
+    return null;
+  }
   function parse(element, { document }) {
-    var _a, _b, _c;
     const picture = element.querySelector("picture");
     let heroImage = null;
     if (picture) {
-      const source = picture.querySelector("source[srcset]");
-      const img = picture.querySelector("img");
-      const imgSrc = (img == null ? void 0 : img.getAttribute("src")) || source && ((_c = (_b = (_a = source.getAttribute("srcset")) == null ? void 0 : _a.split(",")[0]) == null ? void 0 : _b.trim()) == null ? void 0 : _c.split(" ")[0]) || (img == null ? void 0 : img.src);
-      if (imgSrc) {
+      const result = extractDesktopImageUrl(picture);
+      if (result) {
         heroImage = document.createElement("img");
-        heroImage.src = imgSrc;
-        heroImage.alt = (img == null ? void 0 : img.alt) || "";
+        heroImage.src = normalizeImageUrl(result.url);
+        heroImage.alt = result.alt;
       }
     }
     const heading = element.querySelector("h1, h2");
@@ -88,23 +137,72 @@ var CustomImportScript = (() => {
   }
 
   // tools/importer/parsers/cards.js
+  function normalizeImageUrl2(url) {
+    if (!url) return url;
+    try {
+      const u = new URL(url, "https://ss7.vzw.com");
+      const fmt = u.searchParams.get("fmt");
+      if (fmt === "webp-alpha") {
+        u.searchParams.set("fmt", "webp");
+      }
+      if (!u.searchParams.has("scl")) {
+        u.searchParams.set("scl", "2");
+      }
+      return u.toString();
+    } catch (e) {
+      return url.replace("fmt=webp-alpha", "fmt=webp");
+    }
+  }
+  function convertToDesktopUrl2(url) {
+    if (url && url.includes("vzw.com/is/image/")) {
+      return url.replace(/([-_])([mt])(\?|$)/, "$1d$3");
+    }
+    return url;
+  }
+  function firstSrcsetUrl2(srcset) {
+    var _a, _b;
+    return ((_b = (_a = srcset == null ? void 0 : srcset.split(",")[0]) == null ? void 0 : _a.trim()) == null ? void 0 : _b.split(" ")[0]) || null;
+  }
+  function extractDesktopImageUrl2(picture) {
+    const sources = Array.from(picture.querySelectorAll("source[srcset]"));
+    const img = picture.querySelector("img");
+    const alt = (img == null ? void 0 : img.alt) || "";
+    for (const source of sources) {
+      const media = source.getAttribute("media") || "";
+      const match = media.match(/min-width:\s*(\d+)px/);
+      if (match && parseInt(match[1], 10) >= 900) {
+        const url = firstSrcsetUrl2(source.getAttribute("srcset"));
+        if (url) return { url, alt };
+      }
+    }
+    for (const source of sources) {
+      if (!source.getAttribute("media")) {
+        const url = firstSrcsetUrl2(source.getAttribute("srcset"));
+        if (url) return { url, alt };
+      }
+    }
+    if (sources.length > 0) {
+      const url = firstSrcsetUrl2(sources[0].getAttribute("srcset"));
+      if (url) return { url: convertToDesktopUrl2(url), alt };
+    }
+    const imgSrc = (img == null ? void 0 : img.getAttribute("src")) || (img == null ? void 0 : img.src);
+    if (imgSrc) return { url: convertToDesktopUrl2(imgSrc), alt };
+    return null;
+  }
   function parse2(element, { document }) {
-    var _a, _b, _c;
     const picture = element.querySelector("picture");
     const standaloneImg = element.querySelector("img");
     let imageEl = null;
     if (picture) {
-      const source = picture.querySelector("source[srcset]");
-      const img = picture.querySelector("img");
-      const imgSrc = (img == null ? void 0 : img.getAttribute("src")) || source && ((_c = (_b = (_a = source.getAttribute("srcset")) == null ? void 0 : _a.split(",")[0]) == null ? void 0 : _b.trim()) == null ? void 0 : _c.split(" ")[0]) || (img == null ? void 0 : img.src);
-      if (imgSrc) {
+      const result = extractDesktopImageUrl2(picture);
+      if (result) {
         imageEl = document.createElement("img");
-        imageEl.src = imgSrc;
-        imageEl.alt = (img == null ? void 0 : img.alt) || "";
+        imageEl.src = normalizeImageUrl2(result.url);
+        imageEl.alt = result.alt;
       }
     } else if (standaloneImg && (standaloneImg.getAttribute("src") || standaloneImg.src)) {
       imageEl = document.createElement("img");
-      imageEl.src = standaloneImg.getAttribute("src") || standaloneImg.src;
+      imageEl.src = normalizeImageUrl2(standaloneImg.getAttribute("src") || standaloneImg.src);
       imageEl.alt = standaloneImg.alt || "";
     }
     const heading = element.querySelector("h1, h2, h3, h4");
@@ -411,6 +509,17 @@ var CustomImportScript = (() => {
       WebImporter.rules.createMetadata(main, document);
       WebImporter.rules.transformBackgroundImages(main, document);
       WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
+      main.querySelectorAll("img[src], source[srcset]").forEach((el) => {
+        const attr = el.tagName === "SOURCE" ? "srcset" : "src";
+        const val = el.getAttribute(attr);
+        if (val && val.includes("vzw.com/is/image/")) {
+          let fixed = val.replace(/fmt=webp-alpha/g, "fmt=webp");
+          if (!fixed.includes("scl=")) {
+            fixed += (fixed.includes("?") ? "&" : "?") + "scl=2";
+          }
+          el.setAttribute(attr, fixed);
+        }
+      });
       const path = WebImporter.FileUtils.sanitizePath(
         new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html$/, "") || "/index"
       );
