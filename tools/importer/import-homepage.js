@@ -298,6 +298,41 @@ export default {
       }
     });
 
+    // 6d. Percent-encode uppercase chars in Scene7 image names.
+    // DA lowercases the image-name portion of Scene7 URLs when processing
+    // content, but Verizon's CDN is fully case-sensitive — lowercased names
+    // return a "Image Coming Soon" placeholder (3,444 bytes).
+    //
+    // Fix: percent-encode uppercase letters in the image name so that DA's
+    // lowercasing doesn't alter them. E.g. "25Tile" → "25%54ile".
+    // Hex digits in percent-encoding are case-insensitive (%54 = %54 = 'T'),
+    // so lowercasing the encoded URL has no effect. The CDN decodes %54 → T.
+    //
+    // Only the image name (last path segment before query string) is encoded —
+    // the company path "VerizonWireless" must stay literal (403 if lowercased).
+    main.querySelectorAll('img[src]').forEach((el) => {
+      const src = el.getAttribute('src');
+      if (!src || !src.includes('vzw.com/is/image/')) return;
+
+      // Split URL into path (before ?) and query string (after ?)
+      const qIdx = src.indexOf('?');
+      const pathPart = qIdx >= 0 ? src.substring(0, qIdx) : src;
+      const queryPart = qIdx >= 0 ? src.substring(qIdx) : '';
+
+      // Extract the image name — last segment of the path
+      const lastSlash = pathPart.lastIndexOf('/');
+      if (lastSlash < 0) return;
+
+      const imageName = pathPart.substring(lastSlash + 1);
+      // Check if image name has any uppercase characters
+      if (imageName === imageName.toLowerCase()) return;
+
+      // Percent-encode uppercase letters: A→%41, B→%42, ..., Z→%5A
+      const encoded = imageName.replace(/[A-Z]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
+      const newSrc = pathPart.substring(0, lastSlash + 1) + encoded + queryPart;
+      el.setAttribute('src', newSrc);
+    });
+
     // 7. Generate sanitized path
     const path = WebImporter.FileUtils.sanitizePath(
       new URL(params.originalURL).pathname.replace(/\/$/, '').replace(/\.html$/, '') || '/index',

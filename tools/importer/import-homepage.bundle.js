@@ -585,6 +585,20 @@ var CustomImportScript = (() => {
           el.setAttribute("src", fixed);
         }
       });
+      main.querySelectorAll("img[src]").forEach((el) => {
+        const src = el.getAttribute("src");
+        if (!src || !src.includes("vzw.com/is/image/")) return;
+        const qIdx = src.indexOf("?");
+        const pathPart = qIdx >= 0 ? src.substring(0, qIdx) : src;
+        const queryPart = qIdx >= 0 ? src.substring(qIdx) : "";
+        const lastSlash = pathPart.lastIndexOf("/");
+        if (lastSlash < 0) return;
+        const imageName = pathPart.substring(lastSlash + 1);
+        if (imageName === imageName.toLowerCase()) return;
+        const encoded = imageName.replace(/[A-Z]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
+        const newSrc = pathPart.substring(0, lastSlash + 1) + encoded + queryPart;
+        el.setAttribute("src", newSrc);
+      });
       const path = WebImporter.FileUtils.sanitizePath(
         new URL(params.originalURL).pathname.replace(/\/$/, "").replace(/\.html$/, "") || "/index"
       );
