@@ -4,6 +4,7 @@
 // PARSER IMPORTS
 import heroParser from './parsers/hero.js';
 import cardsParser from './parsers/cards.js';
+import quicklinksParser from './parsers/quicklinks.js';
 
 // TRANSFORMER IMPORTS
 import cleanupTransformer from './transformers/verizon-cleanup.js';
@@ -15,6 +16,10 @@ const PAGE_TEMPLATE = {
   urls: ['https://www.verizon.com/'],
   description: 'Verizon homepage with hero carousel, deals grid, service cards, and category navigation',
   blocks: [
+    {
+      name: 'quicklinks',
+      instances: ['section#quickLinks-pzn'],
+    },
     {
       name: 'hero',
       instances: ['.vui\\:cmp-marqueelayout__tile-1'],
@@ -35,6 +40,14 @@ const PAGE_TEMPLATE = {
     },
   ],
   sections: [
+    {
+      id: 'section-quicklinks',
+      name: 'Quick Links Navigation',
+      selector: 'section#quickLinks-pzn',
+      style: null,
+      blocks: ['quicklinks'],
+      defaultContent: [],
+    },
     {
       id: 'section-hero',
       name: 'Hero Marquee Layout',
@@ -80,6 +93,7 @@ const PAGE_TEMPLATE = {
 
 // PARSER REGISTRY
 const parsers = {
+  quicklinks: quicklinksParser,
   hero: heroParser,
   cards: cardsParser,
 };
@@ -266,12 +280,17 @@ export default {
 
     // 6c. Normalize all Verizon Scene7 image URLs.
     // - webp-alpha → webp (DA cannot process webp-alpha format)
+    // - png-alpha is PRESERVED (needed for quicklinks icons with transparency)
     // - Ensure scl= param exists (DA requires consistent query string format)
     // Runs AFTER 6b so that promoted desktop URLs also get normalized.
     main.querySelectorAll('img[src]').forEach((el) => {
       const val = el.getAttribute('src');
       if (val && val.includes('vzw.com/is/image/')) {
-        let fixed = val.replace(/fmt=webp-alpha/g, 'fmt=webp');
+        let fixed = val;
+        // Preserve png-alpha (transparency icons) — only convert webp-alpha → webp
+        if (fixed.includes('fmt=webp-alpha')) {
+          fixed = fixed.replace(/fmt=webp-alpha/g, 'fmt=webp');
+        }
         if (!fixed.includes('scl=')) {
           fixed += (fixed.includes('?') ? '&' : '?') + 'scl=2';
         }

@@ -250,6 +250,47 @@ var CustomImportScript = (() => {
     element.replaceWith(block);
   }
 
+  // tools/importer/parsers/quicklinks.js
+  function parse3(element, { document }) {
+    const cells = [];
+    const anchors = element.querySelectorAll('a[class*="quicklinks__anchor"]');
+    anchors.forEach((anchor) => {
+      const text = anchor.textContent.trim();
+      const href = anchor.getAttribute("href") || "";
+      const icon = anchor.querySelector('i[class*="icon"]');
+      let iconUrl = null;
+      if (icon) {
+        const style = icon.getAttribute("style") || "";
+        const match = style.match(/url\(['"]?(.*?)['"]?\)/);
+        if (match) {
+          iconUrl = match[1];
+        }
+      }
+      const iconCell = document.createElement("div");
+      if (iconUrl) {
+        let normalizedUrl = iconUrl.replace(/fmt=webp-alpha/g, "fmt=png-alpha").replace(/fmt=webp/g, "fmt=png-alpha");
+        if (!normalizedUrl.includes("scl=")) {
+          normalizedUrl += (normalizedUrl.includes("?") ? "&" : "?") + "scl=1";
+        }
+        const img = document.createElement("img");
+        img.src = normalizedUrl;
+        img.alt = "";
+        iconCell.append(img);
+      }
+      const linkCell = document.createElement("div");
+      const p = document.createElement("p");
+      const a = document.createElement("a");
+      a.href = href;
+      a.textContent = text;
+      p.append(a);
+      linkCell.append(p);
+      cells.push([iconCell, linkCell]);
+    });
+    if (cells.length === 0) return;
+    const block = WebImporter.Blocks.createBlock(document, { name: "quicklinks", cells });
+    element.replaceWith(block);
+  }
+
   // tools/importer/transformers/verizon-cleanup.js
   var TransformHook = { beforeTransform: "beforeTransform", afterTransform: "afterTransform" };
   function transform(hookName, element, payload) {
@@ -270,8 +311,6 @@ var CustomImportScript = (() => {
         // Footer - <footer id="vz-gf20">
         "footer#vz-gf20",
         "footer",
-        // Quick links navigation pills - <section id="quickLinks-pzn">
-        "section#quickLinks-pzn",
         // Script/tracking elements
         "script",
         "noscript",
@@ -348,6 +387,10 @@ var CustomImportScript = (() => {
     description: "Verizon homepage with hero carousel, deals grid, service cards, and category navigation",
     blocks: [
       {
+        name: "quicklinks",
+        instances: ["section#quickLinks-pzn"]
+      },
+      {
         name: "hero",
         instances: [".vui\\:cmp-marqueelayout__tile-1"]
       },
@@ -367,6 +410,14 @@ var CustomImportScript = (() => {
       }
     ],
     sections: [
+      {
+        id: "section-quicklinks",
+        name: "Quick Links Navigation",
+        selector: "section#quickLinks-pzn",
+        style: null,
+        blocks: ["quicklinks"],
+        defaultContent: []
+      },
       {
         id: "section-hero",
         name: "Hero Marquee Layout",
@@ -410,6 +461,7 @@ var CustomImportScript = (() => {
     ]
   };
   var parsers = {
+    quicklinks: parse3,
     hero: parse,
     cards: parse2
   };
@@ -509,15 +561,28 @@ var CustomImportScript = (() => {
       WebImporter.rules.createMetadata(main, document);
       WebImporter.rules.transformBackgroundImages(main, document);
       WebImporter.rules.adjustImageUrls(main, url, params.originalURL);
-      main.querySelectorAll("img[src], source[srcset]").forEach((el) => {
-        const attr = el.tagName === "SOURCE" ? "srcset" : "src";
-        const val = el.getAttribute(attr);
+      main.querySelectorAll("picture").forEach((picture) => {
+        const desktopSource = picture.querySelector("source[srcset]");
+        if (desktopSource) {
+          const img = picture.querySelector("img");
+          if (img) {
+            const desktopUrl = desktopSource.getAttribute("srcset").split(" ")[0];
+            img.setAttribute("src", desktopUrl);
+            picture.querySelectorAll("source").forEach((s) => s.remove());
+          }
+        }
+      });
+      main.querySelectorAll("img[src]").forEach((el) => {
+        const val = el.getAttribute("src");
         if (val && val.includes("vzw.com/is/image/")) {
-          let fixed = val.replace(/fmt=webp-alpha/g, "fmt=webp");
+          let fixed = val;
+          if (fixed.includes("fmt=webp-alpha")) {
+            fixed = fixed.replace(/fmt=webp-alpha/g, "fmt=webp");
+          }
           if (!fixed.includes("scl=")) {
             fixed += (fixed.includes("?") ? "&" : "?") + "scl=2";
           }
-          el.setAttribute(attr, fixed);
+          el.setAttribute("src", fixed);
         }
       });
       const path = WebImporter.FileUtils.sanitizePath(
