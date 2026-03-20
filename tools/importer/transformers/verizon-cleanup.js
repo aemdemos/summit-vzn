@@ -36,8 +36,6 @@ export default function transform(hookName, element, payload) {
       // Footer - <footer id="vz-gf20">
       'footer#vz-gf20',
       'footer',
-      // Quick links navigation pills - <section id="quickLinks-pzn">
-      'section#quickLinks-pzn',
       // Script/tracking elements
       'script',
       'noscript',

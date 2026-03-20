@@ -2,6 +2,9 @@ import { createOptimizedPicture } from '../../scripts/aem.js';
 import { moveInstrumentation, getBlockId } from '../../scripts/scripts.js';
 import { createCard } from '../card/card.js';
 
+const BRIGHTNESS_THRESHOLD = 110;
+const SAMPLE_SIZE = 50;
+
 /**
  * Returns the active variant options on the block.
  * @param {Element} block
@@ -9,6 +12,63 @@ import { createCard } from '../card/card.js';
  */
 function getOptions(block) {
   return [...block.classList].filter((c) => !['block', 'cards'].includes(c));
+}
+
+/**
+ * Analyzes average perceived brightness of an image.
+ * Fetches the image as a blob to bypass CORS restrictions on cross-origin CDN images,
+ * draws it to an off-screen canvas at a small sample size, and calculates the
+ * average luminance using the perceived brightness formula (0.299R + 0.587G + 0.114B).
+ * @param {string} src - Image URL to analyze
+ * @returns {Promise<number|null>} Brightness value 0–255, or null on failure
+ */
+async function getImageBrightness(src) {
+  try {
+    const resp = await fetch(src);
+    if (!resp.ok) return null;
+    const blob = await resp.blob();
+    const bitmap = await createImageBitmap(blob);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = SAMPLE_SIZE;
+    canvas.height = SAMPLE_SIZE;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(bitmap, 0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+    bitmap.close();
+
+    const { data } = ctx.getImageData(0, 0, SAMPLE_SIZE, SAMPLE_SIZE);
+    let totalBrightness = 0;
+    const pixelCount = SAMPLE_SIZE * SAMPLE_SIZE;
+    const len = pixelCount * 4;
+    for (let i = 0; i < len; i += 4) {
+      const r = data[i] || 0;
+      const g = data[i + 1] || 0;
+      const b = data[i + 2] || 0;
+      totalBrightness += 0.299 * r + 0.587 * g + 0.114 * b;
+    }
+    return totalBrightness / pixelCount;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Marks cards with dark background images so CSS can apply light text.
+ * Runs brightness analysis on each card's image in parallel and adds a `dark`
+ * class to any card whose image falls below the brightness threshold.
+ * @param {HTMLUListElement} ul - The card list element
+ */
+async function applyDarkCardStyles(ul) {
+  const cards = [...ul.children];
+  const tasks = cards.map(async (card) => {
+    const img = card.querySelector('.cards-card-image img');
+    if (!img?.src) return;
+    const brightness = await getImageBrightness(img.src);
+    if (brightness !== null && brightness < BRIGHTNESS_THRESHOLD) {
+      card.classList.add('dark');
+    }
+  });
+  await Promise.all(tasks);
 }
 
 /**
@@ -68,6 +128,46 @@ function decoratePreviewTile(card) {
 
   body.textContent = '';
   body.append(head, foot);
+}
+
+const VISIBLE_DEALS_COUNT = 4;
+
+/**
+ * Adds a "Show more deals" toggle to the deals-discounts grid.
+ * Initially hides cards beyond the visible count; clicking the button
+ * reveals all cards and hides the button, matching the Verizon.com pattern.
+ * @param {Element} block - The cards block element
+ * @param {HTMLUListElement} ul - The card list element
+ */
+function addShowMoreButton(block, ul) {
+  const cards = [...ul.children];
+  if (cards.length <= VISIBLE_DEALS_COUNT) return;
+
+  cards.forEach((card, i) => {
+    if (i >= VISIBLE_DEALS_COUNT) card.classList.add('hidden');
+  });
+
+  const wrap = document.createElement('div');
+  wrap.className = 'deals-show-more-wrap';
+
+  const btn = document.createElement('button');
+  btn.className = 'deals-show-more';
+  btn.setAttribute('aria-expanded', 'false');
+  const label = document.createElement('span');
+  label.textContent = 'Show more deals';
+  btn.append(label);
+
+  btn.addEventListener('click', () => {
+    ul.querySelectorAll('li.hidden').forEach((card) => card.classList.remove('hidden'));
+    const link = document.createElement('a');
+    link.href = '/deals/';
+    link.className = 'deals-show-more';
+    link.textContent = 'Shop all deals';
+    wrap.replaceChildren(link);
+  });
+
+  wrap.append(btn);
+  block.append(wrap);
 }
 
 /**
@@ -138,4 +238,9 @@ export default function decorate(block) {
 
   block.textContent = '';
   block.append(ul);
+
+  if (options.includes('deals-discounts')) {
+    addShowMoreButton(block, ul);
+    applyDarkCardStyles(ul);
+  }
 }

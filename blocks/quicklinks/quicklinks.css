@@ -1,0 +1,74 @@
+/* ============================================================
+   BLOCK: quicklinks
+   Horizontal row of pill-shaped navigation links with icons.
+   Matches the Verizon.com quick links pattern above the hero.
+   ============================================================ */
+
+.quicklinks {
+  padding: 24px 0;
+}
+
+.quicklinks .quicklinks-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 16px;
+}
+
+.quicklinks .quicklinks-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.quicklinks .quicklinks-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 24px;
+  background-color: #f8f3e9;
+  color: var(--color-black);
+  border: 1px solid #f8f3e9;
+  border-radius: 44px;
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background-color var(--transition-base);
+}
+
+.quicklinks .quicklinks-pill:hover {
+  background-color: #ede8de;
+  border-color: #ede8de;
+  text-decoration: none;
+}
+
+.quicklinks .quicklinks-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  line-height: 0;
+}
+
+.quicklinks .quicklinks-icon img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+.quicklinks .quicklinks-label {
+  line-height: 1;
+}
+
+@media (width >= 900px) {
+  .quicklinks .quicklinks-nav {
+    padding: 0 80px;
+  }
+}
