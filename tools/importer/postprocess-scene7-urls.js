@@ -1,21 +1,23 @@
 /**
- * Post-processing script: Percent-encode uppercase chars in Scene7 image names.
+ * Post-processing script for keeping .html and .plain.html in sync.
  *
- * Problem: DA (Document Authoring) lowercases image names in Scene7 URLs,
- * but Verizon's CDN (ss7.vzw.com / s7.vzw.com) is fully case-sensitive.
- * Lowercased names return a 3,444-byte "Image Coming Soon" placeholder.
+ * Fixes two issues the AEM CLI introduces when generating .plain.html:
  *
- * Fix: Percent-encode uppercase letters in the image name portion of the URL.
- * E.g. "25Tile" → "25%54ile". DA lowercasing doesn't affect percent-encoded
- * chars (%54 stays %54), and the CDN decodes %54 back to T.
+ * 1. Scene7 URL case-sensitivity:
+ *    DA lowercases image names in Scene7 URLs, but Verizon's CDN
+ *    (ss7.vzw.com / s7.vzw.com) is fully case-sensitive. Lowercased
+ *    names return a placeholder image. Fix: percent-encode uppercase
+ *    letters (e.g. "25Tile" → "25%54ile") so they survive lowercasing.
+ *    Also re-encodes the "-D" responsive suffix that AEM CLI decodes.
+ *
+ * 2. Block variant class stripping:
+ *    The AEM CLI strips variant classes from block divs in .plain.html
+ *    (e.g. class="cards hero-marquee" → class="cards"). This causes
+ *    variant-specific CSS and JS to not apply. Fix: sync variant classes
+ *    from .html back to .plain.html by matching blocks in document order.
  *
  * Must run AFTER the bulk import (which produces content/*.html files),
  * because WebImporter's HTML serializer decodes percent-encoded URLs.
- *
- * IMPORTANT: Also handles .plain.html files where the AEM CLI specifically
- * decodes and lowercases the "-D" responsive suffix (e.g. -%44 → -d).
- * The script cross-references with the .html file to detect and re-encode
- * these lowercased suffixes.
  *
  * Usage: node postprocess-scene7-urls.js <html-file> [<html-file> ...]
  *   Automatically detects and processes companion .plain.html files.
@@ -66,6 +68,59 @@ function processHtmlFile(file) {
   return count;
 }
 
+/**
+ * Sync block variant classes from .html to .plain.html.
+ *
+ * The AEM CLI strips variant classes when generating .plain.html
+ * (e.g. class="cards hero-marquee" becomes class="cards").
+ * This function restores them by matching blocks in document order
+ * within each base block name.
+ */
+function syncVariantClasses(plainFile, htmlFile) {
+  const htmlContent = readFileSync(htmlFile, 'utf-8');
+  let plainContent = readFileSync(plainFile, 'utf-8');
+
+  // Match class attributes that look like block names (lowercase, with optional variants)
+  const classPattern = /class="([a-z][a-z0-9-]*(?:\s+[a-z][a-z0-9-]*)*)"/g;
+
+  // Build ordered list of class values per base block name from .html
+  const htmlClassMap = new Map();
+  let match;
+  while ((match = classPattern.exec(htmlContent)) !== null) {
+    const base = match[1].split(/\s+/)[0];
+    if (!htmlClassMap.has(base)) htmlClassMap.set(base, []);
+    htmlClassMap.get(base).push(match[1]);
+  }
+
+  // Track position per base class as we walk through .plain.html
+  const positionMap = new Map();
+  let count = 0;
+
+  plainContent = plainContent.replace(classPattern, (full, classValue) => {
+    const base = classValue.split(/\s+/)[0];
+    const pos = positionMap.get(base) || 0;
+    positionMap.set(base, pos + 1);
+
+    const htmlVariants = htmlClassMap.get(base);
+    if (htmlVariants && pos < htmlVariants.length) {
+      const expected = htmlVariants[pos];
+      if (expected !== classValue) {
+        count += 1;
+        return `class="${expected}"`;
+      }
+    }
+    return full;
+  });
+
+  if (count > 0) {
+    writeFileSync(plainFile, plainContent, 'utf-8');
+    console.log(`  ${plainFile}: synced ${count} variant class(es) from .html`);
+  } else {
+    console.log(`  ${plainFile}: all variant classes already in sync`);
+  }
+  return count;
+}
+
 function processPlainHtml(plainFile, encodedMap) {
   let html = readFileSync(plainFile, 'utf-8');
   let count = 0;
@@ -112,6 +167,9 @@ files.forEach((file) => {
     const encodedHtml = readFileSync(file, 'utf-8');
     const encodedMap = buildEncodedMap(encodedHtml);
     totalFixed += processPlainHtml(plainFile, encodedMap);
+
+    // Step 3: Sync block variant classes from .html → .plain.html
+    totalFixed += syncVariantClasses(plainFile, file);
   }
 });
 
