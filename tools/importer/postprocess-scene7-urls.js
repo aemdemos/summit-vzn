@@ -27,7 +27,12 @@ import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 const SCENE7_PATTERN = /(https?:\/\/s(?:s7|7)\.vzw\.com\/is\/image\/VerizonWireless\/)([^?"&\s]+)/g;
 
 function encodeUppercase(imageName) {
-  return imageName.replace(/[A-Z]/g, (ch) => `%${ch.charCodeAt(0).toString(16).toUpperCase()}`);
+  // Match existing percent-encoded sequences first (to skip them),
+  // then match standalone uppercase letters to encode.
+  return imageName.replace(/%[0-9A-Fa-f]{2}|[A-Z]/g, (match) => {
+    if (match.length === 3) return match; // already percent-encoded, preserve
+    return `%${match.charCodeAt(0).toString(16).toUpperCase()}`;
+  });
 }
 
 /**
@@ -49,12 +54,17 @@ function buildEncodedMap(htmlContent) {
   return map;
 }
 
+function hasUnencodedUppercase(name) {
+  // Strip existing percent-encoded sequences, then check for remaining uppercase
+  return /[A-Z]/.test(name.replace(/%[0-9A-Fa-f]{2}/g, ''));
+}
+
 function processHtmlFile(file) {
   let html = readFileSync(file, 'utf-8');
   let count = 0;
 
   html = html.replace(SCENE7_PATTERN, (match, prefix, imageName) => {
-    if (imageName === imageName.toLowerCase()) return match;
+    if (!hasUnencodedUppercase(imageName)) return match;
     count += 1;
     return prefix + encodeUppercase(imageName);
   });
