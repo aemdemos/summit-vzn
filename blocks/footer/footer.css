@@ -1,8 +1,11 @@
 @import url('./footer-tokens.css');
 
+/* --- Base footer --- */
 footer {
-  background-color: var(--light-color);
-  font-size: var(--body-font-size-xs);
+  background-color: var(--footer-bg);
+  color: var(--footer-text-color);
+  font-size: var(--footer-link-size);
+  border-top: 1px solid var(--footer-border-color);
 }
 
 footer .footer > div {
@@ -15,8 +18,357 @@ footer .footer p {
   margin: 0;
 }
 
+/* --- Link sections (columns) --- */
+footer .footer .footer-links .default-content-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+footer .footer .footer-column {
+  border-bottom: 1px solid var(--footer-border-color);
+  padding: var(--spacing-l) 0;
+}
+
+footer .footer .footer-column h2 {
+  font-family: var(--heading-font-family);
+  font-size: var(--footer-heading-size);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+  line-height: 20px;
+  position: relative;
+  cursor: pointer;
+  padding-right: 32px;
+}
+
+footer .footer .footer-column h2::after {
+  content: '+';
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+footer .footer .footer-column.open h2::after {
+  content: '\2212'; /* minus sign */
+}
+
+footer .footer .footer-column h3 {
+  font-family: var(--heading-font-family);
+  font-size: var(--footer-heading-size);
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding-top: var(--spacing-l);
+  border-top: 1px solid var(--footer-text-color);
+  line-height: 20px;
+}
+
+footer .footer .footer-column ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: none;
+}
+
+footer .footer .footer-column.open ul {
+  display: block;
+}
+
+footer .footer .footer-column li {
+  padding: 0;
+}
+
+footer .footer .footer-column a {
+  color: var(--footer-link-color);
+  text-decoration: none;
+  font-size: var(--footer-heading-size);
+  line-height: 20px;
+  display: block;
+  padding: 12px 0;
+}
+
+footer .footer .footer-column a:hover {
+  color: var(--footer-link-hover-color);
+  text-decoration: underline;
+}
+
+/* --- Social icons (icon-only, no text) --- */
+footer .footer .footer-social h2 {
+  cursor: default;
+  padding-right: 0;
+}
+
+footer .footer .footer-social h2::after {
+  display: none;
+}
+
+footer .footer .footer-social ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-l);
+}
+
+footer .footer .footer-social li {
+  padding: var(--spacing-s) 0;
+}
+
+footer .footer .footer-social a {
+  display: flex;
+  align-items: center;
+}
+
+footer .footer .footer-social a:hover {
+  text-decoration: none;
+}
+
+footer .footer .footer-social .icon {
+  display: inline-block;
+  width: var(--footer-icon-size);
+  height: var(--footer-icon-size);
+}
+
+footer .footer .footer-social .icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentcolor;
+}
+
+/* --- Bottom bar --- */
+footer .footer .footer-bottom {
+  border-top: 1px solid var(--footer-border-color);
+  margin-top: var(--spacing-xl);
+}
+
+footer .footer .footer-bottom .default-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-m);
+  padding: var(--spacing-xl);
+}
+
+/* Verizon logo in bottom bar */
+footer .footer .footer-bottom .default-content-wrapper > p:first-child {
+  line-height: 0;
+}
+
+footer .footer .footer-bottom .default-content-wrapper > p:first-child a {
+  text-decoration: none;
+  display: inline-block;
+}
+
+footer .footer .footer-bottom .default-content-wrapper > p:first-child .icon {
+  display: inline-block;
+  width: 99px;
+  height: 25px;
+}
+
+footer .footer .footer-bottom .default-content-wrapper > p:first-child .icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Policy links list */
+footer .footer .footer-bottom ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+footer .footer .footer-bottom li a {
+  color: var(--footer-bottom-text-color);
+  text-decoration: none;
+  font-size: var(--body-font-size-xs);
+  letter-spacing: normal;
+  line-height: 16px;
+  display: block;
+  padding: 12px 0;
+}
+
+footer .footer .footer-bottom li a:hover {
+  text-decoration: underline;
+}
+
+/* Privacy choices icon */
+footer .footer .footer-bottom .icon-privacy-choices {
+  display: inline-block;
+  width: 28px;
+  height: 14px;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+
+footer .footer .footer-bottom .icon-privacy-choices svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* "Website Terms of Use" link on its own line */
+footer .footer .footer-bottom .default-content-wrapper > p:nth-last-child(2) a {
+  color: var(--footer-bottom-text-color);
+  text-decoration: none;
+  font-size: var(--body-font-size-xs);
+  letter-spacing: normal;
+  line-height: 16px;
+  display: block;
+  padding: 12px 0;
+}
+
+footer .footer .footer-bottom .default-content-wrapper > p:nth-last-child(2) a:hover {
+  text-decoration: underline;
+}
+
+/* Copyright */
+footer .footer .footer-bottom .default-content-wrapper > p:last-child {
+  color: var(--footer-bottom-text-color);
+  font-size: var(--body-font-size-xs);
+  letter-spacing: normal;
+  line-height: 16px;
+}
+
+/* --- Desktop (>= 900px) --- */
 @media (width >= 900px) {
   footer .footer > div {
     padding: var(--footer-padding-desktop);
+  }
+
+  /* 4x2 grid: equal-width columns, equal-height rows */
+  footer .footer .footer-links .default-content-wrapper {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 0;
+  }
+
+  footer .footer .footer-column {
+    border-bottom: none;
+    padding: var(--spacing-xl) var(--spacing-xl) var(--spacing-xl) 0;
+    position: relative;
+  }
+
+  /* Vertical grid dividers via right border */
+  footer .footer .footer-column:not(:nth-child(4n)) {
+    border-right: 1px solid var(--footer-border-color);
+    padding-right: var(--spacing-xl);
+  }
+
+  /* Left padding on columns 2, 3, 4 */
+  footer .footer .footer-column:not(:nth-child(4n + 1)) {
+    padding-left: var(--spacing-xl);
+  }
+
+  /* Horizontal divider between row 1 and row 2 (second .footer-links section) */
+  footer .footer .footer-links + .footer-links .footer-column {
+    border-top: 1px solid var(--footer-border-color);
+  }
+
+  /* Gap at junctions: cover bottom of vertical borders where they meet horizontal */
+  footer .footer .footer-column:not(:nth-child(4n))::after {
+    content: '';
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 1px;
+    height: 12px;
+    background: var(--footer-bg);
+  }
+
+  /* Gap at junctions: cover top of vertical borders in row 2 */
+  footer .footer .footer-links + .footer-links .footer-column:not(:nth-child(4n))::before {
+    content: '';
+    position: absolute;
+    right: -1px;
+    top: -1px;
+    width: 1px;
+    height: 12px;
+    background: var(--footer-bg);
+  }
+
+  footer .footer .footer-column h2 {
+    cursor: default;
+    padding-right: 0;
+    margin-bottom: var(--spacing-l);
+  }
+
+  footer .footer .footer-column h2::after {
+    display: none;
+  }
+
+  /* Desktop: revert link to 14px inline with no padding (li provides spacing) */
+  footer .footer .footer-column a {
+    font-size: var(--footer-link-size);
+    display: inline;
+    padding: 0;
+  }
+
+  /* Restore li padding on desktop */
+  footer .footer .footer-column li {
+    padding: var(--spacing-m) 0;
+  }
+
+  /* Remove h3 top border on desktop */
+  footer .footer .footer-column h3 {
+    border-top: none;
+    padding-top: 0;
+    margin: var(--spacing-xl) 0 0;
+  }
+
+  /* Always show lists on desktop */
+  footer .footer .footer-column ul {
+    display: block;
+  }
+
+  footer .footer .footer-social ul {
+    display: flex;
+  }
+
+  /* Policy links: revert to inline on desktop */
+  footer .footer .footer-bottom li a {
+    display: inline;
+    padding: 0;
+  }
+
+  footer .footer .footer-bottom .default-content-wrapper > p:nth-last-child(2) a {
+    display: inline;
+    padding: 0;
+  }
+
+  /* Bottom bar horizontal layout */
+  footer .footer .footer-bottom .default-content-wrapper {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    gap: var(--spacing-m) var(--spacing-xl);
+  }
+
+  /* Logo: row 1, col 1 */
+  footer .footer .footer-bottom .default-content-wrapper > p:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  /* Policy links: row 1, col 2, horizontal flex */
+  footer .footer .footer-bottom ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-s) var(--spacing-xl);
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  /* Copyright: row 1, col 3 */
+  footer .footer .footer-bottom .default-content-wrapper > p:last-child {
+    grid-column: 3;
+    grid-row: 1;
+  }
+
+  /* "Website Terms of Use": row 2, starting at col 2 */
+  footer .footer .footer-bottom .default-content-wrapper > p:nth-last-child(2) {
+    grid-column: 2;
+    grid-row: 2;
   }
 }

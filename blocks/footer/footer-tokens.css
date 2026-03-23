@@ -3,4 +3,14 @@
   --footer-max-width: var(--max-width-site);
   --footer-padding: 40px 24px 24px;
   --footer-padding-desktop: 40px 32px 24px;
+  --footer-bg: var(--color-white);
+  --footer-text-color: var(--color-black);
+  --footer-link-color: var(--color-black);
+  --footer-link-hover-color: var(--color-red);
+  --footer-heading-size: 16px;
+  --footer-link-size: 14px;
+  --footer-border-color: var(--color-gray-light);
+  --footer-bottom-bg: #f6f6f6;
+  --footer-bottom-text-color: var(--color-gray);
+  --footer-icon-size: 24px;
 }
