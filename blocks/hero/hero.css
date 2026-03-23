@@ -18,6 +18,11 @@
   justify-content: flex-start;
   align-items: center;
   padding: var(--hero-padding);
+  transition: transform 0.15s;
+}
+
+.hero:hover {
+  transform: scale(1.02);
 }
 
 /* Text content overlay */
@@ -185,6 +190,7 @@
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
+  overflow: visible;
 }
 
 /* Hero wrapper must fill its grid cell */
@@ -275,7 +281,7 @@ main > .section.marquee .cards h3 {
   main > .section.marquee > .cards-wrapper {
     grid-column: 2;
     grid-row: 1;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* Skinny banner: full width bottom row */

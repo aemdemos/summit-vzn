@@ -24,6 +24,11 @@
   border: var(--cards-card-border-width) solid var(--cards-card-border-color);
   background-color: var(--background-color);
   box-shadow: 0 6px 48px #00000014;
+  transition: transform 0.15s;
+}
+
+.cards > ul > li:hover {
+  transform: scale(1.02);
 }
 
 .cards .cards-card-body {
@@ -60,6 +65,8 @@
   border-radius: 16px;
   overflow: hidden;
   min-height: 360px;
+  background: none;
+  box-shadow: none;
 }
 
 .cards.hero-marquee .cards-card-image {
