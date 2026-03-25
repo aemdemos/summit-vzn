@@ -28,6 +28,52 @@ function createSvg(attrs, children) {
   return svg;
 }
 
+function slugify(text) {
+  return text.toLowerCase()
+    .replace(/&/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+}
+
+/**
+ * Parses an authorable content cell into a UL with regular links and has-submenu items.
+ * - <p> with <a> → regular <li><a>
+ * - <p> with plain text → submenu header (has-submenu <li> with <button>)
+ * - <ul> after a submenu header → nested submenu items
+ */
+function parseCategoryContent(cell) {
+  const ul = document.createElement('ul');
+  let currentSubmenu = null;
+
+  [...cell.children].forEach((el) => {
+    if (el.tagName === 'P') {
+      const link = el.querySelector('a');
+      if (link) {
+        currentSubmenu = null;
+        const li = document.createElement('li');
+        li.appendChild(link.cloneNode(true));
+        ul.appendChild(li);
+      } else {
+        const text = el.textContent.trim();
+        if (text) {
+          currentSubmenu = document.createElement('li');
+          currentSubmenu.className = 'has-submenu';
+          currentSubmenu.setAttribute('data-subcategory', slugify(text));
+          const btn = document.createElement('button');
+          btn.textContent = text;
+          currentSubmenu.appendChild(btn);
+          ul.appendChild(currentSubmenu);
+        }
+      }
+    } else if (el.tagName === 'UL' && currentSubmenu) {
+      currentSubmenu.appendChild(el.cloneNode(true));
+      currentSubmenu = null;
+    }
+  });
+
+  return ul;
+}
+
 /* =============================================
    STATE MANAGEMENT
    ============================================= */
@@ -140,13 +186,103 @@ function buildBrand(section) {
 }
 
 function buildMegamenuPanel(section) {
-  const panel = section.querySelector('.megamenu-panel');
+  const panel = section.querySelector('[class*="megamenu-panel"]');
   if (!panel) return null;
+
   const wrapper = document.createElement('div');
   wrapper.className = 'megamenu-panel';
-  wrapper.setAttribute('data-panel', panel.getAttribute('data-panel'));
   wrapper.setAttribute('role', 'menu');
-  cloneChildren(panel, wrapper);
+
+  // Extract panel ID from data-panel or variant class
+  let panelId = panel.getAttribute('data-panel');
+  if (!panelId) {
+    panelId = [...panel.classList].find((c) => c !== 'megamenu-panel') || '';
+  }
+  wrapper.setAttribute('data-panel', panelId);
+
+  const rows = [...panel.querySelectorAll(':scope > div')];
+
+  // If no row structure, fall back to cloning content as-is
+  if (rows.length === 0) {
+    cloneChildren(panel, wrapper);
+    return wrapper;
+  }
+
+  // Row 1: H2 (menu label) + UL (first-level nav items / sidebar categories)
+  const headerRow = rows[0];
+  const headerCell = headerRow.querySelector(':scope > div') || headerRow;
+  const h2 = headerCell.querySelector('h2');
+  const sidebarUl = headerCell.querySelector('ul');
+
+  // Category rows: each has H3 in col 1, sub-items in col 2
+  const categoryRows = rows.slice(1);
+
+  // Build sidebar
+  const sidebar = document.createElement('div');
+  sidebar.className = 'megamenu-sidebar';
+  if (h2) sidebar.appendChild(h2.cloneNode(true));
+
+  // Simple panel (e.g. Deals): no category rows, just direct links
+  if (categoryRows.length === 0) {
+    if (sidebarUl) sidebar.appendChild(sidebarUl.cloneNode(true));
+    wrapper.appendChild(sidebar);
+    return wrapper;
+  }
+
+  // Complex panel (e.g. Shop): sidebar categories + content panels
+  const sidebarCategories = document.createElement('ul');
+  sidebarCategories.className = 'sidebar-categories';
+
+  const content = document.createElement('div');
+  content.className = 'megamenu-content';
+
+  // Map H3 text → content cell for each category row
+  const categoryMap = new Map();
+  categoryRows.forEach((row) => {
+    const cells = [...row.querySelectorAll(':scope > div')];
+    const firstCell = cells[0] || row;
+    const rowH3 = firstCell.querySelector('h3');
+    if (rowH3) {
+      const name = rowH3.textContent.trim();
+      const contentCell = cells.length > 1 ? cells[1] : null;
+      categoryMap.set(name, contentCell);
+    }
+  });
+
+  // Build sidebar items from the header UL
+  const sidebarItems = sidebarUl ? [...sidebarUl.querySelectorAll(':scope > li')] : [];
+  sidebarItems.forEach((item) => {
+    const link = item.querySelector('a');
+    const text = item.textContent.trim();
+    const catId = slugify(text);
+    const li = document.createElement('li');
+
+    const contentCell = categoryMap.get(text);
+
+    if (contentCell) {
+      // Category with sub-items → button trigger + category panel
+      li.setAttribute('data-category', catId);
+      const btn = document.createElement('button');
+      btn.textContent = text;
+      li.appendChild(btn);
+
+      const catPanel = document.createElement('div');
+      catPanel.className = 'category-panel';
+      catPanel.setAttribute('data-category', catId);
+      catPanel.appendChild(parseCategoryContent(contentCell));
+      content.appendChild(catPanel);
+    } else if (link) {
+      // Direct link (e.g. myAccess)
+      li.appendChild(link.cloneNode(true));
+    }
+
+    sidebarCategories.appendChild(li);
+  });
+
+  sidebar.appendChild(sidebarCategories);
+  wrapper.appendChild(sidebar);
+  wrapper.appendChild(content);
+
   return wrapper;
 }
 
