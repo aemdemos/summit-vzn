@@ -13,3 +13,5 @@ localhost-key.pem
 .cursor
 Trace*.json
 .migration/
+blocks/header/navigation-validation
+*.pak
