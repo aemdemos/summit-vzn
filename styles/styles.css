@@ -3,6 +3,11 @@
  * Migrated from https://www.verizon.com/
  */
 
+/* Hide metadata block from rendering */
+.metadata-container {
+  display: none;
+}
+
 :root {
   /* colors - Verizon brand palette */
   --background-color: #fff;

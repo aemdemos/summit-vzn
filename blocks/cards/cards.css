@@ -82,20 +82,19 @@
 .cards.hero-marquee .cards-card-body {
   position: relative;
   z-index: 1;
-  margin: 0;
-  padding: 32px 24px;
+  margin: 0 10px;
+  padding: 18% 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
   text-align: center;
   color: var(--color-white);
-  width: 330px;
+  width: 50%;
   height: 100%;
 }
 
 .cards.hero-marquee .cards-card-body h2 {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   font-family: var(--heading-font-family);
   font-weight: 700;
   font-size: 24px;
@@ -140,8 +139,7 @@
   }
 
   .cards.hero-marquee .cards-card-body {
-    padding: 32px 0 48px 24px;
-    justify-content: flex-end;
+    padding: 18% 0 0;
   }
 
 }
@@ -461,4 +459,123 @@
 
 .cards.categorytilettes .cards-card-body p {
   display: none;
+}
+
+/* ============================================================
+   TOOLTIP — shared across card variants
+   ============================================================ */
+
+.cards .tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+.cards .tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--color-black);
+  background: transparent;
+  color: var(--color-black);
+  font-size: 7px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 8.5px;
+  flex-shrink: 0;
+}
+
+.cards .tooltip-trigger::before {
+  content: 'i';
+}
+
+/* Dark cards: white tooltip icon */
+.cards > ul > li.dark .tooltip-trigger {
+  border-color: var(--color-white);
+  color: var(--color-white);
+}
+
+/* Hero-marquee cards: white tooltip icon */
+.cards.hero-marquee .tooltip-trigger {
+  border-color: var(--color-white);
+  color: var(--color-white);
+}
+
+/* Absolutely-positioned tooltip via authored [x, y] coordinates */
+.cards .tooltip-wrapper.tooltip-positioned {
+  position: absolute;
+  margin-left: 0;
+}
+
+/* Tooltip popup — appended to body to escape card overflow:hidden */
+.cards-tooltip-popup {
+  display: none;
+  position: fixed;
+  width: 240px;
+  background: var(--color-white, #fff);
+  color: var(--color-black, #000);
+  border: 1px solid var(--color-black, #000);
+  border-radius: 4px;
+  padding: 16px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  z-index: 1000;
+  text-align: left;
+  pointer-events: auto;
+}
+
+/* Arrow border (outer black triangle) — popup above trigger */
+.cards-tooltip-popup::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+  border-top-color: var(--color-black, #000);
+}
+
+/* Arrow fill (inner white triangle) */
+.cards-tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--color-white, #fff);
+}
+
+/* Arrow border — popup below trigger */
+.cards-tooltip-popup.below::before {
+  top: auto;
+  bottom: 100%;
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-black, #000);
+}
+
+/* Arrow fill — popup below trigger */
+.cards-tooltip-popup.below::after {
+  top: auto;
+  bottom: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-white, #fff);
+}
+
+.cards-tooltip-popup.visible {
+  display: block;
 }

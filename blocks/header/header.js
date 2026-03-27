@@ -165,7 +165,43 @@ function buildUtilityBar(section) {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-utility-bar';
   const bar = section.querySelector('.nav-utility-bar');
-  if (bar) cloneChildren(bar, wrapper);
+  if (!bar) return wrapper;
+
+  // Parse two-column block table: col 1 = left links, col 2 = right links
+  const row = bar.querySelector(':scope > div');
+  if (!row) return wrapper;
+  const cells = [...row.querySelectorAll(':scope > div')];
+
+  // Left utility links (col 1)
+  if (cells[0]) {
+    const leftUl = cells[0].querySelector('ul');
+    if (leftUl) {
+      const clone = leftUl.cloneNode(true);
+      clone.className = 'utility-left';
+      // Mark first link as active (Personal)
+      const firstLink = clone.querySelector('a');
+      if (firstLink) firstLink.classList.add('active');
+      wrapper.appendChild(clone);
+    }
+  }
+
+  // Right utility links (col 2)
+  if (cells[1]) {
+    const rightUl = cells[1].querySelector('ul');
+    if (rightUl) {
+      const clone = rightUl.cloneNode(true);
+      clone.className = 'utility-right';
+      // Detect locale link (Español) by URL hostname
+      clone.querySelectorAll('a').forEach((a) => {
+        const href = a.getAttribute('href') || '';
+        if (href.includes('espanol.')) {
+          a.classList.add('locale-link');
+        }
+      });
+      wrapper.appendChild(clone);
+    }
+  }
+
   return wrapper;
 }
 
@@ -173,7 +209,87 @@ function buildMainNav(section) {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-main-row';
   const main = section.querySelector('.nav-main');
-  if (main) cloneChildren(main, wrapper);
+  if (!main) return wrapper;
+
+  // Parse two-column block table: col 1 = nav links, col 2 = tools
+  const row = main.querySelector(':scope > div');
+  if (!row) return wrapper;
+  const cells = [...row.querySelectorAll(':scope > div')];
+
+  // Nav links (col 1): items with <a> = direct links, plain text = megamenu triggers
+  if (cells[0]) {
+    const sourceUl = cells[0].querySelector('ul');
+    if (sourceUl) {
+      const navLinks = document.createElement('ul');
+      navLinks.className = 'nav-links';
+
+      [...sourceUl.querySelectorAll(':scope > li')].forEach((li) => {
+        const link = li.querySelector('a');
+        const newLi = document.createElement('li');
+
+        if (link) {
+          newLi.appendChild(link.cloneNode(true));
+        } else {
+          // Plain text = megamenu trigger button
+          const text = li.textContent.trim();
+          const panelId = slugify(text);
+          newLi.className = 'has-megamenu';
+          newLi.setAttribute('data-megamenu', panelId);
+          const btn = document.createElement('button');
+          btn.setAttribute('aria-label', `${text} Menu List`);
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = text;
+          newLi.appendChild(btn);
+        }
+
+        navLinks.appendChild(newLi);
+      });
+
+      wrapper.appendChild(navLinks);
+    }
+  }
+
+  // Tools (col 2): detect by text content → search, sign in, cart
+  if (cells[1]) {
+    const sourceUl = cells[1].querySelector('ul');
+    if (sourceUl) {
+      const navTools = document.createElement('ul');
+      navTools.className = 'nav-tools';
+
+      [...sourceUl.querySelectorAll(':scope > li')].forEach((li) => {
+        const text = li.textContent.trim().toLowerCase();
+        const newLi = document.createElement('li');
+
+        if (text.includes('search')) {
+          newLi.className = 'nav-search';
+          const btn = document.createElement('button');
+          btn.setAttribute('aria-label', 'Search Verizon');
+          btn.className = 'search-trigger';
+          btn.textContent = 'Search Verizon';
+          newLi.appendChild(btn);
+        } else if (text.includes('sign in') || text.includes('signin')) {
+          newLi.className = 'nav-signin has-dropdown';
+          newLi.setAttribute('data-dropdown', slugify(li.textContent.trim()));
+          const btn = document.createElement('button');
+          btn.setAttribute('aria-label', 'Sign in dropdown menu');
+          btn.setAttribute('aria-expanded', 'false');
+          btn.textContent = 'Sign in';
+          newLi.appendChild(btn);
+        } else if (text.includes('cart')) {
+          newLi.className = 'nav-cart';
+          const btn = document.createElement('button');
+          btn.setAttribute('aria-label', 'Shopping Cart Menu 0 items in the cart');
+          btn.className = 'cart-trigger';
+          newLi.appendChild(btn);
+        }
+
+        navTools.appendChild(newLi);
+      });
+
+      wrapper.appendChild(navTools);
+    }
+  }
+
   return wrapper;
 }
 
@@ -181,7 +297,17 @@ function buildBrand(section) {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-brand';
   const brand = section.querySelector('.nav-brand');
-  if (brand) cloneChildren(brand, wrapper);
+  if (!brand) return wrapper;
+
+  // Find the logo link inside block table cells (EDS-compatible)
+  const link = brand.querySelector('a');
+  if (link) {
+    const clone = link.cloneNode(true);
+    if (!clone.getAttribute('aria-label')) {
+      clone.setAttribute('aria-label', 'Verizon Home Page');
+    }
+    wrapper.appendChild(clone);
+  }
   return wrapper;
 }
 
@@ -198,12 +324,12 @@ function buildMegamenuPanel(section) {
   if (!panelId) {
     panelId = [...panel.classList].find((c) => c !== 'megamenu-panel') || '';
   }
-  wrapper.setAttribute('data-panel', panelId);
 
   const rows = [...panel.querySelectorAll(':scope > div')];
 
   // If no row structure, fall back to cloning content as-is
   if (rows.length === 0) {
+    wrapper.setAttribute('data-panel', panelId);
     cloneChildren(panel, wrapper);
     return wrapper;
   }
@@ -213,6 +339,12 @@ function buildMegamenuPanel(section) {
   const headerCell = headerRow.querySelector(':scope > div') || headerRow;
   const h2 = headerCell.querySelector('h2');
   const sidebarUl = headerCell.querySelector('ul');
+
+  // Derive panel ID from H2 when data-panel is stripped (e.g. by EDS pipeline)
+  if (!panelId && h2) {
+    panelId = h2.id || slugify(h2.textContent.trim());
+  }
+  wrapper.setAttribute('data-panel', panelId);
 
   // Category rows: each has H3 in col 1, sub-items in col 2
   const categoryRows = rows.slice(1);
@@ -229,35 +361,25 @@ function buildMegamenuPanel(section) {
     return wrapper;
   }
 
-  // Complex panel (e.g. Shop): sidebar categories + content panels
+  // Complex panel (e.g. Shop): derive sidebar categories from category rows directly
   const sidebarCategories = document.createElement('ul');
   sidebarCategories.className = 'sidebar-categories';
 
   const content = document.createElement('div');
   content.className = 'megamenu-content';
 
-  // Map H3 text → content cell for each category row
-  const categoryMap = new Map();
+  // Build sidebar + content panels from each category row's H3 (col 1) + sub-items (col 2)
   categoryRows.forEach((row) => {
     const cells = [...row.querySelectorAll(':scope > div')];
     const firstCell = cells[0] || row;
     const rowH3 = firstCell.querySelector('h3');
-    if (rowH3) {
-      const name = rowH3.textContent.trim();
-      const contentCell = cells.length > 1 ? cells[1] : null;
-      categoryMap.set(name, contentCell);
-    }
-  });
+    if (!rowH3) return;
 
-  // Build sidebar items from the header UL
-  const sidebarItems = sidebarUl ? [...sidebarUl.querySelectorAll(':scope > li')] : [];
-  sidebarItems.forEach((item) => {
-    const link = item.querySelector('a');
-    const text = item.textContent.trim();
+    const text = rowH3.textContent.trim();
     const catId = slugify(text);
+    const contentCell = cells.length > 1 ? cells[1] : null;
+    const link = firstCell.querySelector('a');
     const li = document.createElement('li');
-
-    const contentCell = categoryMap.get(text);
 
     if (contentCell) {
       // Category with sub-items → button trigger + category panel
@@ -269,10 +391,17 @@ function buildMegamenuPanel(section) {
       const catPanel = document.createElement('div');
       catPanel.className = 'category-panel';
       catPanel.setAttribute('data-category', catId);
+
+      // Add category name as column heading above sub-items
+      const catHeading = document.createElement('h3');
+      catHeading.className = 'category-heading';
+      catHeading.textContent = text;
+      catPanel.appendChild(catHeading);
+
       catPanel.appendChild(parseCategoryContent(contentCell));
       content.appendChild(catPanel);
     } else if (link) {
-      // Direct link (e.g. myAccess)
+      // Direct link (e.g. myAccess) — H3 wraps an anchor
       li.appendChild(link.cloneNode(true));
     }
 
@@ -287,12 +416,25 @@ function buildMegamenuPanel(section) {
 }
 
 function buildDropdownPanel(section) {
-  const panel = section.querySelector('.dropdown-panel');
+  const panel = section.querySelector('[class*="dropdown-panel"]');
   if (!panel) return null;
+
   const wrapper = document.createElement('div');
   wrapper.className = 'dropdown-panel';
-  wrapper.setAttribute('data-panel', panel.getAttribute('data-panel'));
-  cloneChildren(panel, wrapper);
+
+  // Derive panel ID: data-panel (local) or H2 heading (EDS-compatible)
+  let panelId = panel.getAttribute('data-panel');
+  const cell = panel.querySelector(':scope > div > div') || panel;
+  const h2 = cell.querySelector('h2');
+  if (!panelId && h2) {
+    panelId = h2.id || slugify(h2.textContent.trim());
+  }
+  wrapper.setAttribute('data-panel', panelId || '');
+
+  // Clone only the link list, not the heading (heading is for identification only)
+  const ul = cell.querySelector('ul');
+  if (ul) wrapper.appendChild(ul.cloneNode(true));
+
   return wrapper;
 }
 
@@ -300,7 +442,58 @@ function buildPromoRibbon(section) {
   const wrapper = document.createElement('div');
   wrapper.className = 'nav-promo-ribbon';
   const promo = section.querySelector('.nav-promo-ribbon');
-  if (promo) cloneChildren(promo, wrapper);
+  if (!promo) return wrapper;
+
+  const cell = promo.querySelector(':scope > div > div') || promo;
+  const ul = cell.querySelector('ul');
+
+  // Single item (no UL) — render plain text as before
+  if (!ul) {
+    cloneChildren(cell, wrapper);
+    return wrapper;
+  }
+
+  // Multiple items — build carousel
+  const items = [...ul.querySelectorAll(':scope > li')];
+  const track = document.createElement('div');
+  track.className = 'promo-track';
+  track.setAttribute('role', 'group');
+  track.setAttribute('aria-label', `Verizon Promos with ${items.length} promotions`);
+
+  items.forEach((li, i) => {
+    const slide = document.createElement('div');
+    slide.className = 'promo-slide';
+    slide.setAttribute('aria-label', `Promo ${i + 1} of ${items.length}`);
+    if (i === 0) slide.classList.add('active');
+    // Move all child nodes (text + links) into the slide
+    const p = document.createElement('p');
+    [...li.childNodes].forEach((node) => p.appendChild(node.cloneNode(true)));
+    slide.appendChild(p);
+    track.appendChild(slide);
+  });
+
+  // Prev arrow
+  const prevBtn = document.createElement('button');
+  prevBtn.className = 'promo-arrow promo-arrow-prev';
+  prevBtn.setAttribute('aria-label', 'Previous promotion');
+  prevBtn.appendChild(createSvg(
+    { viewBox: '0 0 21.6 21.6', width: '16', height: '16' },
+    [['polygon', { points: '14.89 19.8 5.89 10.799 14.89 1.8 15.71 2.619 7.53 10.799 15.71 18.981 14.89 19.8' }]],
+  ));
+
+  // Next arrow
+  const nextBtn = document.createElement('button');
+  nextBtn.className = 'promo-arrow promo-arrow-next';
+  nextBtn.setAttribute('aria-label', 'Next promotion');
+  nextBtn.appendChild(createSvg(
+    { viewBox: '0 0 21.6 21.6', width: '16', height: '16' },
+    [['polygon', { points: '6.71 19.8 5.89 18.981 14.07 10.799 5.89 2.619 6.71 1.8 15.71 10.799 6.71 19.8' }]],
+  ));
+
+  wrapper.appendChild(prevBtn);
+  wrapper.appendChild(track);
+  wrapper.appendChild(nextBtn);
+
   return wrapper;
 }
 
@@ -485,6 +678,26 @@ function setupMegamenuInteractions(nav) {
    ENHANCEMENTS
    ============================================= */
 
+function setupPromoRibbon(nav) {
+  const ribbon = nav.querySelector('.nav-promo-ribbon');
+  if (!ribbon) return;
+  const slides = ribbon.querySelectorAll('.promo-slide');
+  if (slides.length < 2) return;
+
+  let current = 0;
+
+  function goTo(index) {
+    slides[current].classList.remove('active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('active');
+  }
+
+  const prevBtn = ribbon.querySelector('.promo-arrow-prev');
+  const nextBtn = ribbon.querySelector('.promo-arrow-next');
+  if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
+  if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+}
+
 function addCloseButtons(nav) {
   nav.querySelectorAll('.megamenu-panel').forEach((panel) => {
     const closeBtn = document.createElement('button');
@@ -620,30 +833,42 @@ function setupMobileMenu(nav) {
    ============================================= */
 
 function buildNavSections(nav, sections) {
-  if (sections[1]) nav.appendChild(buildUtilityBar(sections[1]));
+  // Discover sections by their block class name instead of hardcoded indices
+  let brandSection;
+  let utilitySection;
+  let mainSection;
+  let promoSection;
+  const megamenuSections = [];
+  const dropdownSections = [];
 
-  if (sections[2]) {
-    const mainRow = buildMainNav(sections[2]);
-    if (sections[0]) mainRow.prepend(buildBrand(sections[0]));
+  sections.forEach((section) => {
+    if (section.querySelector('.nav-brand')) brandSection = section;
+    else if (section.querySelector('.nav-utility-bar')) utilitySection = section;
+    else if (section.querySelector('.nav-main')) mainSection = section;
+    else if (section.querySelector('[class*="megamenu-panel"]')) megamenuSections.push(section);
+    else if (section.querySelector('[class*="dropdown-panel"]')) dropdownSections.push(section);
+    else if (section.querySelector('.nav-promo-ribbon')) promoSection = section;
+  });
+
+  if (utilitySection) nav.appendChild(buildUtilityBar(utilitySection));
+
+  if (mainSection) {
+    const mainRow = buildMainNav(mainSection);
+    if (brandSection) mainRow.prepend(buildBrand(brandSection));
     nav.appendChild(mainRow);
   }
 
-  if (sections[3]) {
-    const panel = buildMegamenuPanel(sections[3]);
+  megamenuSections.forEach((s) => {
+    const panel = buildMegamenuPanel(s);
     if (panel) nav.appendChild(panel);
-  }
+  });
 
-  if (sections[4]) {
-    const panel = buildMegamenuPanel(sections[4]);
+  dropdownSections.forEach((s) => {
+    const panel = buildDropdownPanel(s);
     if (panel) nav.appendChild(panel);
-  }
+  });
 
-  if (sections[5]) {
-    const panel = buildDropdownPanel(sections[5]);
-    if (panel) nav.appendChild(panel);
-  }
-
-  if (sections[6]) nav.appendChild(buildPromoRibbon(sections[6]));
+  if (promoSection) nav.appendChild(buildPromoRibbon(promoSection));
 }
 
 /* =============================================
@@ -690,6 +915,7 @@ export default async function decorate(block) {
   addCartIcon(nav);
   setupMobileMenu(nav);
   setupMegamenuInteractions(nav);
+  setupPromoRibbon(nav);
 
   const navWrapper = document.createElement('div');
   navWrapper.className = 'nav-wrapper';
