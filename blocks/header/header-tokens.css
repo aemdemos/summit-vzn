@@ -8,7 +8,8 @@
   --nav-height: var(--header-total-height);
 
   /* typography */
-  --header-font-family: arial, helvetica, sans-serif;
+  --header-font-family: var(--heading-font-family);
+  --header-utility-font-family: var(--body-font-family);
   --header-utility-font-size: 12px;
   --header-nav-font-size: 16px;
   --header-sign-in-font-size: 14px;

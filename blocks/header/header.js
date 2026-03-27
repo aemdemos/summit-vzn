@@ -758,7 +758,7 @@ function addSearchIcon(nav) {
         }],
       ],
     );
-    searchTrigger.prepend(svg);
+    searchTrigger.append(svg);
   }
 }
 
@@ -768,28 +768,26 @@ function addCartIcon(nav) {
     cartTrigger.textContent = '';
     cartTrigger.appendChild(createSvg(
       {
-        viewBox: '0 0 24 24',
+        viewBox: '0 0 21.6 21.6',
         width: '24',
         height: '24',
         class: 'cart-icon',
       },
       [
         ['path', {
-          d: 'M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z',
-          fill: 'none',
+          d: [
+            'M19.63887,4.5507H5.74775L5.40107,2.85831,2.3249,1.79972,',
+            '1.96113,2.85807l2.47217.85059L6.91719,15.84281a2.10574,',
+            '2.10574,0,1,0,3.02588,2.43836h4.41406a2.112,2.112,0,1,',
+            '0,0-1.18689H9.94307a2.104,2.104,0,0,0-1.937-1.51185l-',
+            '.38378-1.87524,11.08691-1.32935Zm-3.26465,12.213a.924.',
+            '924,0,1,1-.92438.924A.924.924,0,0,1,16.37422,16.76371Z',
+            'm-8.44861,0H7.926a.92414.92414,0,1,1-.00037,0Zm9.77576',
+            '-5.392L7.39711,12.60722,5.97676,5.66959h12.4024Z',
+          ].join(''),
+          fill: 'currentColor',
           stroke: 'currentColor',
-          'stroke-width': '1.5',
-        }],
-        ['path', {
-          d: 'M3 6h18',
-          stroke: 'currentColor',
-          'stroke-width': '1.5',
-        }],
-        ['path', {
-          d: 'M16 10a4 4 0 01-8 0',
-          fill: 'none',
-          stroke: 'currentColor',
-          'stroke-width': '1.5',
+          'stroke-width': '0.1',
         }],
       ],
     ));
