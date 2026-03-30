@@ -341,6 +341,7 @@ function getVariantLabel(options) {
   if (options.includes('deals-discounts')) return 'Deals and discounts';
   if (options.includes('previewtiles')) return 'Preview tiles';
   if (options.includes('categorytilettes')) return 'Category tiles';
+  if (options.includes('search-featured')) return 'Search featured devices';
   return 'Cards';
 }
 
@@ -383,7 +384,8 @@ export default function decorate(block) {
     if (options.includes('hero-marquee')
       || options.includes('deals-discounts')
       || options.includes('categorytilettes')
-      || options.includes('previewtiles')) {
+      || options.includes('previewtiles')
+      || options.includes('search-featured')) {
       makeClickable(card);
     }
 

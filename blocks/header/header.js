@@ -1,4 +1,6 @@
-import { getMetadata } from '../../scripts/aem.js';
+import { getMetadata, loadSections, DOMPURIFY } from '../../scripts/aem.js';
+// eslint-disable-next-line import/no-cycle
+import { decorateMain, ensureDOMPurify } from '../../scripts/scripts.js';
 
 const isDesktop = window.matchMedia('(min-width: 900px)');
 // W3C SVG namespace (standard URI, not a network request)
@@ -794,6 +796,129 @@ function addCartIcon(nav) {
   }
 }
 
+function setupSearchOverlay(nav) {
+  const searchTrigger = nav.querySelector('.search-trigger');
+  if (!searchTrigger) return;
+
+  let overlay = null;
+  let fragmentLoaded = false;
+
+  function closeOverlay() {
+    if (overlay) {
+      overlay.classList.remove('open');
+      document.body.style.overflowY = '';
+    }
+  }
+
+  async function openOverlay() {
+    closeAllPanels(nav);
+
+    if (!overlay) {
+      overlay = document.createElement('div');
+      overlay.className = 'search-overlay';
+      overlay.setAttribute('role', 'dialog');
+      overlay.setAttribute('aria-label', 'Search');
+
+      // Backdrop (semi-transparent white covering the bottom half)
+      const backdrop = document.createElement('div');
+      backdrop.className = 'search-overlay-backdrop';
+      backdrop.addEventListener('click', closeOverlay);
+      // Content area (solid white top) — comes first in flex column
+      const content = document.createElement('div');
+      content.className = 'search-overlay-content';
+
+      // Header row: Verizon logo + close button
+      const header = document.createElement('div');
+      header.className = 'search-overlay-header';
+
+      const logo = nav.querySelector('.nav-brand a');
+      if (logo) {
+        const logoClone = logo.cloneNode(true);
+        logoClone.className = 'search-overlay-logo';
+        header.appendChild(logoClone);
+      }
+
+      const closeBtn = document.createElement('button');
+      closeBtn.className = 'search-overlay-close';
+      closeBtn.setAttribute('aria-label', 'Close search');
+      closeBtn.appendChild(createSvg(
+        { viewBox: '0 0 24 24', width: '24', height: '24' },
+        [['path', {
+          d: 'M18 6L6 18M6 6l12 12',
+          stroke: 'currentColor',
+          'stroke-width': '2',
+          'stroke-linecap': 'round',
+        }]],
+      ));
+      closeBtn.addEventListener('click', closeOverlay);
+      header.appendChild(closeBtn);
+      content.appendChild(header);
+
+      // Fragment content area
+      const fragmentArea = document.createElement('div');
+      fragmentArea.className = 'search-overlay-fragment';
+      content.appendChild(fragmentArea);
+
+      overlay.appendChild(content);
+      overlay.appendChild(backdrop);
+      document.body.appendChild(overlay);
+    }
+
+    overlay.classList.add('open');
+    document.body.style.overflowY = 'hidden';
+
+    // Load fragment on first open
+    if (!fragmentLoaded) {
+      fragmentLoaded = true;
+      const fragmentArea = overlay.querySelector('.search-overlay-fragment');
+      try {
+        await ensureDOMPurify();
+        const resp = await fetch('/content/search.plain.html');
+        if (resp.ok) {
+          const main = document.createElement('main');
+          main.innerHTML = window.DOMPurify.sanitize(
+            await resp.text(),
+            DOMPURIFY,
+          );
+          decorateMain(main);
+          await loadSections(main);
+          fragmentArea.appendChild(main);
+
+          // Focus the search input after it's rendered
+          const input = fragmentArea.querySelector('.search-input');
+          if (input) {
+            input.placeholder = 'Search Verizon';
+            input.setAttribute('aria-label', 'Search Verizon');
+            input.focus();
+          }
+        }
+      } catch {
+        // silently handle fragment load failure
+      }
+    } else {
+      // Re-focus input on subsequent opens
+      const input = overlay.querySelector('.search-input');
+      if (input) input.focus();
+    }
+  }
+
+  searchTrigger.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (overlay && overlay.classList.contains('open')) {
+      closeOverlay();
+    } else {
+      openOverlay();
+    }
+  });
+
+  // Escape key closes overlay
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+      closeOverlay();
+    }
+  });
+}
+
 function setupMobileMenu(nav) {
   const hamburger = document.createElement('div');
   hamburger.className = 'nav-hamburger';
@@ -912,6 +1037,7 @@ export default async function decorate(block) {
   addSearchIcon(nav);
   addCartIcon(nav);
   setupMobileMenu(nav);
+  setupSearchOverlay(nav);
   setupMegamenuInteractions(nav);
   setupPromoRibbon(nav);
 

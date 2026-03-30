@@ -773,6 +773,167 @@ header nav .dropdown-close:hover {
 }
 
 /* =============================================
+   SEARCH OVERLAY
+   ============================================= */
+
+.search-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  flex-direction: column;
+}
+
+.search-overlay.open {
+  display: flex;
+}
+
+/* Top portion: solid white content area */
+.search-overlay-content {
+  position: relative;
+  z-index: 2;
+  background-color: #fff;
+  padding: 0 max(20px, calc((100% - 1272px) / 2));
+}
+
+/* Bottom portion: semi-transparent white backdrop */
+.search-overlay-backdrop {
+  flex: 1;
+  background-color: rgb(255 255 255 / 50%);
+}
+
+/* Overlay header: logo + close button */
+.search-overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 0 24px;
+}
+
+.search-overlay-logo {
+  display: flex;
+  align-items: center;
+}
+
+.search-overlay-logo img {
+  width: var(--header-logo-width);
+  height: var(--header-logo-height);
+}
+
+.search-overlay-close {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  color: var(--header-text-color);
+  padding: 0;
+}
+
+.search-overlay-close:hover {
+  opacity: 0.6;
+}
+
+/* Fragment content within overlay */
+.search-overlay-fragment main {
+  padding: 0;
+  margin: 0;
+}
+
+.search-overlay-fragment .section {
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  text-align: left;
+}
+
+.search-overlay-fragment .section > div {
+  max-width: none;
+  margin: 0;
+  width: 100%;
+}
+
+/* Search block styling inside the overlay — big full-width bar */
+.search-overlay-fragment .search {
+  margin-bottom: 0;
+}
+
+.search-overlay-fragment .search .search-box {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  border: 2px solid #716f6d;
+  border-radius: 64px;
+  padding: 10px 16px;
+  height: 68px;
+  gap: 12px;
+}
+
+.search-overlay-fragment .search .search-box:focus-within {
+  outline: 1px dashed #000;
+  outline-offset: 3px;
+}
+
+.search-overlay-fragment .search .search-box .icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.search-overlay-fragment .search .search-box input {
+  border: 0;
+  border-radius: 0;
+  padding: 4px 0;
+  font-size: 24px;
+  font-family: var(--heading-font-family);
+  font-weight: 400;
+  background: transparent;
+  color: var(--header-text-color);
+  height: 100%;
+  width: 100%;
+}
+
+.search-overlay-fragment .search .search-box input::placeholder {
+  color: #6f7171;
+}
+
+.search-overlay-fragment .search .search-box input:hover {
+  border: 0;
+}
+
+.search-overlay-fragment .search .search-box input:focus {
+  outline: none;
+}
+
+/* Hide search results in the overlay initially */
+.search-overlay-fragment .search .search-results {
+  padding: 0;
+  margin: 0;
+}
+
+/* Featured devices heading */
+.search-overlay-fragment h2 {
+  font-family: var(--header-font-family);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--header-text-color);
+  letter-spacing: 0.4px;
+  line-height: 1.1;
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+/* Overlay fragment padding-bottom */
+.search-overlay-fragment {
+  padding-bottom: 40px;
+}
+
+/* =============================================
    HAMBURGER (hidden on desktop, shown on mobile)
    ============================================= */
 
