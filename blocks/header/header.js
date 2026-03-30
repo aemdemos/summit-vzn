@@ -881,7 +881,7 @@ function setupSearchOverlay(nav) {
       const fragmentArea = overlay.querySelector('.search-overlay-fragment');
       try {
         await ensureDOMPurify();
-        const resp = await fetch('/content/search.plain.html');
+        const resp = await fetch('/search.plain.html');
         if (resp.ok) {
           const main = document.createElement('main');
           main.innerHTML = window.DOMPurify.sanitize(
