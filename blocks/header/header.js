@@ -695,17 +695,45 @@ function setupPromoRibbon(nav) {
   if (slides.length < 2) return;
 
   let current = 0;
+  let sliding = false;
 
-  function goTo(index) {
-    slides[current].classList.remove('active');
+  function goTo(index, direction) {
+    if (sliding) return;
+    const prev = current;
     current = (index + slides.length) % slides.length;
-    slides[current].classList.add('active');
+    if (prev === current) return;
+
+    sliding = true;
+    const entering = slides[current];
+    const leaving = slides[prev];
+    const offset = direction === 'next' ? 100 : -100;
+
+    // Position entering slide off-screen, skip transition
+    entering.style.transition = 'none';
+    entering.style.transform = `translateX(${offset}%)`;
+    entering.classList.add('active');
+    // eslint-disable-next-line no-unused-expressions
+    entering.offsetHeight; // force reflow
+
+    // Animate both slides
+    entering.style.transition = '';
+    entering.style.transform = 'translateX(0)';
+    leaving.style.transform = `translateX(${-offset}%)`;
+
+    // Clean up after transition — disable transition before resetting
+    // position so the slide doesn't visibly fly across to the CSS default.
+    setTimeout(() => {
+      leaving.style.transition = 'none';
+      leaving.classList.remove('active');
+      leaving.style.transform = '';
+      sliding = false;
+    }, 350);
   }
 
   const prevBtn = ribbon.querySelector('.promo-arrow-prev');
   const nextBtn = ribbon.querySelector('.promo-arrow-next');
-  if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1));
-  if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1));
+  if (prevBtn) prevBtn.addEventListener('click', () => goTo(current - 1, 'prev'));
+  if (nextBtn) nextBtn.addEventListener('click', () => goTo(current + 1, 'next'));
 }
 
 function addCloseButtons(nav) {
@@ -808,120 +836,112 @@ function setupSearchOverlay(nav) {
   const searchTrigger = nav.querySelector('.search-trigger');
   if (!searchTrigger) return;
 
-  let overlay = null;
-  let fragmentLoaded = false;
+  // Build overlay DOM immediately so it's ready when user clicks
+  const overlay = document.createElement('div');
+  overlay.className = 'search-overlay';
+  overlay.setAttribute('role', 'dialog');
+  overlay.setAttribute('aria-label', 'Search');
+
+  const backdrop = document.createElement('div');
+  backdrop.className = 'search-overlay-backdrop';
+
+  const content = document.createElement('div');
+  content.className = 'search-overlay-content';
+
+  const header = document.createElement('div');
+  header.className = 'search-overlay-header';
+
+  const logo = nav.querySelector('.nav-brand a');
+  if (logo) {
+    const logoClone = logo.cloneNode(true);
+    logoClone.className = 'search-overlay-logo';
+    header.appendChild(logoClone);
+  }
+
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'search-overlay-close';
+  closeBtn.setAttribute('aria-label', 'Close search');
+  closeBtn.appendChild(createSvg(
+    { viewBox: '0 0 24 24', width: '24', height: '24' },
+    [['path', {
+      d: 'M18 6L6 18M6 6l12 12',
+      stroke: 'currentColor',
+      'stroke-width': '2',
+      'stroke-linecap': 'round',
+    }]],
+  ));
+  header.appendChild(closeBtn);
+  content.appendChild(header);
+
+  const fragmentArea = document.createElement('div');
+  fragmentArea.className = 'search-overlay-fragment';
+  content.appendChild(fragmentArea);
+
+  overlay.appendChild(content);
+  overlay.appendChild(backdrop);
+  document.body.appendChild(overlay);
+
+  // Preload fragment content in the background so it's ready before first click
+  let fragmentReady = false;
+  const fragmentPromise = (async () => {
+    try {
+      await ensureDOMPurify();
+      const resp = await fetch('/search.plain.html');
+      if (resp.ok) {
+        const main = document.createElement('main');
+        main.innerHTML = window.DOMPurify.sanitize(await resp.text(), DOMPURIFY);
+        decorateMain(main);
+        await loadSections(main);
+        fragmentArea.appendChild(main);
+
+        const input = fragmentArea.querySelector('.search-input');
+        if (input) {
+          input.placeholder = 'Search Verizon';
+          input.setAttribute('aria-label', 'Search Verizon');
+        }
+        fragmentReady = true;
+      }
+    } catch {
+      // silently handle fragment load failure
+    }
+  })();
 
   function closeOverlay() {
-    if (overlay) {
-      overlay.classList.remove('open');
-      document.body.style.overflowY = '';
-    }
+    overlay.classList.remove('open');
+    document.body.style.overflowY = '';
+    document.body.style.paddingRight = '';
   }
 
   async function openOverlay() {
     closeAllPanels(nav);
 
-    if (!overlay) {
-      overlay = document.createElement('div');
-      overlay.className = 'search-overlay';
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-label', 'Search');
+    // If fragment hasn't finished loading yet, wait for it before animating
+    if (!fragmentReady) await fragmentPromise;
 
-      // Backdrop (semi-transparent white covering the bottom half)
-      const backdrop = document.createElement('div');
-      backdrop.className = 'search-overlay-backdrop';
-      backdrop.addEventListener('click', closeOverlay);
-      // Content area (solid white top) — comes first in flex column
-      const content = document.createElement('div');
-      content.className = 'search-overlay-content';
-
-      // Header row: Verizon logo + close button
-      const header = document.createElement('div');
-      header.className = 'search-overlay-header';
-
-      const logo = nav.querySelector('.nav-brand a');
-      if (logo) {
-        const logoClone = logo.cloneNode(true);
-        logoClone.className = 'search-overlay-logo';
-        header.appendChild(logoClone);
-      }
-
-      const closeBtn = document.createElement('button');
-      closeBtn.className = 'search-overlay-close';
-      closeBtn.setAttribute('aria-label', 'Close search');
-      closeBtn.appendChild(createSvg(
-        { viewBox: '0 0 24 24', width: '24', height: '24' },
-        [['path', {
-          d: 'M18 6L6 18M6 6l12 12',
-          stroke: 'currentColor',
-          'stroke-width': '2',
-          'stroke-linecap': 'round',
-        }]],
-      ));
-      closeBtn.addEventListener('click', closeOverlay);
-      header.appendChild(closeBtn);
-      content.appendChild(header);
-
-      // Fragment content area
-      const fragmentArea = document.createElement('div');
-      fragmentArea.className = 'search-overlay-fragment';
-      content.appendChild(fragmentArea);
-
-      overlay.appendChild(content);
-      overlay.appendChild(backdrop);
-      document.body.appendChild(overlay);
-    }
-
+    // Compensate for scrollbar disappearing to prevent content shift
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.paddingRight = `${scrollbarWidth}px`;
     overlay.classList.add('open');
     document.body.style.overflowY = 'hidden';
 
-    // Load fragment on first open
-    if (!fragmentLoaded) {
-      fragmentLoaded = true;
-      const fragmentArea = overlay.querySelector('.search-overlay-fragment');
-      try {
-        await ensureDOMPurify();
-        const resp = await fetch('/search.plain.html');
-        if (resp.ok) {
-          const main = document.createElement('main');
-          main.innerHTML = window.DOMPurify.sanitize(
-            await resp.text(),
-            DOMPURIFY,
-          );
-          decorateMain(main);
-          await loadSections(main);
-          fragmentArea.appendChild(main);
-
-          // Focus the search input after it's rendered
-          const input = fragmentArea.querySelector('.search-input');
-          if (input) {
-            input.placeholder = 'Search Verizon';
-            input.setAttribute('aria-label', 'Search Verizon');
-            input.focus();
-          }
-        }
-      } catch {
-        // silently handle fragment load failure
-      }
-    } else {
-      // Re-focus input on subsequent opens
-      const input = overlay.querySelector('.search-input');
-      if (input) input.focus();
-    }
+    const input = overlay.querySelector('.search-input');
+    if (input) input.focus();
   }
+
+  closeBtn.addEventListener('click', closeOverlay);
+  backdrop.addEventListener('click', closeOverlay);
 
   searchTrigger.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (overlay && overlay.classList.contains('open')) {
+    if (overlay.classList.contains('open')) {
       closeOverlay();
     } else {
       openOverlay();
     }
   });
 
-  // Escape key closes overlay
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && overlay && overlay.classList.contains('open')) {
+    if (e.key === 'Escape' && overlay.classList.contains('open')) {
       closeOverlay();
     }
   });

@@ -236,23 +236,37 @@ function rebuildBlock(block, imgEl, content, disclaimer, isBanner) {
 
 /**
  * Decorates the hero block.
- * Restructures the rows (image + content + optional disclaimer) into
- * a background-image tile with text overlay.
+ *
+ * Content model (single-cell: image + text together):
+ *   Standard hero — 1 row: image, heading, subtitle, CTA, tooltip
+ *   Banner variant — 2 rows: row 1 = image + heading + CTA + tooltip,
+ *                             row 2 = disclaimer text
+ *
+ * rebuildBlock separates the image into hero-bg; the remaining cell
+ * children become hero-content.
+ *
  * @param {Element} block The hero block element
  */
 export default function decorate(block) {
   const rows = [...block.children];
-  const [imageRow, contentRow, disclaimerRow] = rows;
-
-  const picture = imageRow?.querySelector('picture');
-  const imgEl = picture || imageRow?.querySelector('img');
-  const content = contentRow?.firstElementChild || contentRow;
-  const disclaimer = disclaimerRow?.firstElementChild || disclaimerRow;
   const isBanner = block.classList.contains('banner');
+
+  // Standard: [combinedRow]
+  // Banner:   [combinedRow, disclaimerRow]
+  const combinedRow = rows[0];
+  const disclaimerRow = isBanner ? rows[1] : null;
+
+  const cell = combinedRow?.firstElementChild;
+  const picture = cell?.querySelector('picture');
+  const imgEl = picture || cell?.querySelector('img');
+  const content = cell;
+  const disclaimer = disclaimerRow?.firstElementChild || disclaimerRow;
 
   // Extract tooltip from italic paragraphs before rebuilding
   const tooltip = extractTooltip(content);
 
+  // rebuildBlock clears the block, moves imgEl into hero-bg,
+  // and appends the cell (now minus its image) as hero-content.
   rebuildBlock(block, imgEl, content, disclaimer, isBanner);
 
   if (tooltip) {
