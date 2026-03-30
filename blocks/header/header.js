@@ -156,7 +156,15 @@ function openDropdown(nav, trigger, panelId) {
   closeAllPanels(nav);
   trigger.setAttribute('aria-expanded', 'true');
   const panel = nav.querySelector(`.dropdown-panel[data-panel="${panelId}"]`);
-  if (panel) panel.classList.add('open');
+  if (panel) {
+    panel.classList.add('open');
+    const triggerRect = trigger.getBoundingClientRect();
+    const navRect = nav.getBoundingClientRect();
+    const panelWidth = panel.offsetWidth;
+    const rightAligned = triggerRect.right - navRect.left;
+    panel.style.left = `${rightAligned - panelWidth}px`;
+    panel.style.right = 'auto';
+  }
 }
 
 /* =============================================
