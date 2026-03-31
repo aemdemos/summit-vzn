@@ -197,6 +197,26 @@ function detectMarquee(block) {
 }
 
 /**
+ * Unwraps orphaned <p> wrappers that contain block-level elements.
+ * aem.js wrapTextNodes() wraps all cell children in a single <p> when the
+ * first child is a <picture> with siblings. After the image is extracted to
+ * hero-bg, this <p> traps headings and nested <p> elements inside it,
+ * breaking flex layout on banners. This helper promotes those children back
+ * to direct children of the container.
+ * @param {Element} container The hero-content element
+ */
+function unwrapBlockElements(container) {
+  [...container.querySelectorAll(':scope > p')].forEach((p) => {
+    if (p.querySelector('h1, h2, h3, h4, h5, h6')) {
+      while (p.firstChild) {
+        p.parentNode.insertBefore(p.firstChild, p);
+      }
+      p.remove();
+    }
+  });
+}
+
+/**
  * Rebuilds the block DOM with background image, content overlay, and disclaimer.
  * @param {Element} block The hero block element
  * @param {Element|null} imgEl The image or picture element
@@ -227,6 +247,10 @@ function rebuildBlock(block, imgEl, content, disclaimer, isBanner) {
     content.classList.add('hero-content');
     block.append(content);
   }
+
+  // Fix orphaned <p> wrappers from wrapTextNodes (see unwrapBlockElements)
+  const heroContent = block.querySelector('.hero-content');
+  if (heroContent) unwrapBlockElements(heroContent);
 
   if (disclaimer) {
     disclaimer.classList.add('hero-disclaimer');
