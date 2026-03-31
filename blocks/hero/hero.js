@@ -197,17 +197,22 @@ function detectMarquee(block) {
 }
 
 /**
- * Unwraps orphaned <p> wrappers that contain block-level elements.
- * aem.js wrapTextNodes() wraps all cell children in a single <p> when the
- * first child is a <picture> with siblings. After the image is extracted to
- * hero-bg, this <p> traps headings and nested <p> elements inside it,
- * breaking flex layout on banners. This helper promotes those children back
- * to direct children of the container.
+ * Cleans up hero-content after the image is extracted to hero-bg.
+ *
+ * Two scenarios handled:
+ * 1. AEM-delivered content: the image was in its own <p>, leaving an empty
+ *    <p> after extraction. Remove it so it doesn't become a stray flex child.
+ * 2. Local .plain.html: wrapTextNodes() wrapped all cell children in a single
+ *    <p>. After image extraction this <p> traps headings and nested <p>
+ *    elements, breaking flex layout. Unwrap those children.
+ *
  * @param {Element} container The hero-content element
  */
-function unwrapBlockElements(container) {
+function cleanupContent(container) {
   [...container.querySelectorAll(':scope > p')].forEach((p) => {
-    if (p.querySelector('h1, h2, h3, h4, h5, h6')) {
+    if (!p.textContent.trim() && !p.querySelector('img, picture, a')) {
+      p.remove();
+    } else if (p.querySelector('h1, h2, h3, h4, h5, h6')) {
       while (p.firstChild) {
         p.parentNode.insertBefore(p.firstChild, p);
       }
@@ -248,9 +253,9 @@ function rebuildBlock(block, imgEl, content, disclaimer, isBanner) {
     block.append(content);
   }
 
-  // Fix orphaned <p> wrappers from wrapTextNodes (see unwrapBlockElements)
+  // Clean up empty <p> and orphaned wrappers left after image extraction
   const heroContent = block.querySelector('.hero-content');
-  if (heroContent) unwrapBlockElements(heroContent);
+  if (heroContent) cleanupContent(heroContent);
 
   if (disclaimer) {
     disclaimer.classList.add('hero-disclaimer');
