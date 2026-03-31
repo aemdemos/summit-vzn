@@ -211,6 +211,7 @@ header nav .nav-links > li > button {
 header nav .nav-links > li > a:hover,
 header nav .nav-links > li > button:hover {
   border-bottom: 2px solid var(--header-text-color);
+  text-decoration: none;
 }
 
 header nav .nav-links > li > button[aria-expanded='true'] {
