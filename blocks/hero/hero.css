@@ -18,6 +18,11 @@
   justify-content: flex-start;
   align-items: center;
   padding: var(--hero-padding);
+  transition: transform 0.15s;
+}
+
+.hero:hover {
+  transform: scale(1.02);
 }
 
 /* Text content overlay */
@@ -51,6 +56,13 @@
   line-height: var(--hero-heading-line-height);
   margin: 0 auto 16px;
   max-width: var(--hero-heading-max-width);
+}
+
+/* Bold text in headings = highlight color (not visually bold) */
+.hero .hero-content h1 strong,
+.hero .hero-content h2 strong {
+  color: var(--hero-highlight-color);
+  font-weight: inherit;
 }
 
 .hero .hero-content p {
@@ -185,6 +197,7 @@
 .hero-container .hero-wrapper {
   max-width: unset;
   padding: 0;
+  overflow: visible;
 }
 
 /* Hero wrapper must fill its grid cell */
@@ -258,6 +271,117 @@ main > .section.marquee .cards h3 {
 
 /* Skinny banner in marquee: handled by .hero.banner variant */
 
+/* ===== Tooltip ===== */
+
+main .hero .tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+main .hero .tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--color-white);
+  background: transparent;
+  color: var(--color-white);
+  font-size: 7px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+main .hero .tooltip-trigger::before {
+  content: 'i';
+}
+
+/* Banner tooltip: standalone flex item */
+main .hero.banner .tooltip-wrapper {
+  z-index: 2;
+  margin-left: 0;
+}
+
+/* Absolutely-positioned tooltip via authored [x, y] coordinates */
+main .hero .tooltip-wrapper.tooltip-positioned {
+  position: absolute;
+  margin-left: 0;
+}
+
+/* Tooltip popup — appended to body to escape hero overflow:hidden */
+.hero-tooltip-popup {
+  display: none;
+  position: fixed;
+  width: 240px;
+  background: var(--color-white, #fff);
+  color: var(--color-black, #000);
+  border: 1px solid var(--color-black, #000);
+  border-radius: 4px;
+  padding: 16px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  z-index: 1000;
+  text-align: left;
+  pointer-events: auto;
+}
+
+/* Arrow border (outer black triangle) — popup above trigger */
+.hero-tooltip-popup::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+  border-top-color: var(--color-black, #000);
+}
+
+/* Arrow fill (inner white triangle) — overlaps border by 1px for seamless join */
+.hero-tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--color-white, #fff);
+}
+
+/* Arrow border — popup below trigger */
+.hero-tooltip-popup.below::before {
+  top: auto;
+  bottom: 100%;
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-black, #000);
+}
+
+/* Arrow fill — popup below trigger */
+.hero-tooltip-popup.below::after {
+  top: auto;
+  bottom: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-white, #fff);
+}
+
+.hero-tooltip-popup.visible {
+  display: block;
+}
+
 /* ===== Desktop: 2-column marquee grid ===== */
 @media (width >= 900px) {
   main > .section.marquee {
@@ -275,7 +399,7 @@ main > .section.marquee .cards h3 {
   main > .section.marquee > .cards-wrapper {
     grid-column: 2;
     grid-row: 1;
-    overflow: hidden;
+    overflow: visible;
   }
 
   /* Skinny banner: full width bottom row */

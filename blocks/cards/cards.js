@@ -6,6 +6,167 @@ const BRIGHTNESS_THRESHOLD = 110;
 const SAMPLE_SIZE = 50;
 
 /**
+ * Normalises a single CSS coordinate value.
+ * Keeps `%` values as-is; appends `px` when no unit is specified.
+ * @param {string} raw  Raw authored value, e.g. "50%", "28px", "120"
+ * @returns {string} CSS-ready value
+ */
+function normCoord(raw) {
+  const v = raw.trim();
+  if (v.endsWith('%') || v.endsWith('px')) return v;
+  return `${v}px`;
+}
+
+/**
+ * Extracts tooltip text (and optional position coords) from italic-only paragraphs.
+ * Convention: a <p><em>text</em></p> in authored content = tooltip.
+ * If text starts with "[x, y]" the icon is absolutely positioned at those coords.
+ * @param {Element} bodyEl The card body container
+ * @returns {{ text: string, coords: { left: string, top: string } | null } | null}
+ */
+function extractTooltip(bodyEl) {
+  if (!bodyEl) return null;
+  const paragraphs = [...bodyEl.querySelectorAll('p')];
+  for (let i = paragraphs.length - 1; i >= 0; i -= 1) {
+    const p = paragraphs[i];
+    if (p.children.length === 1 && p.children[0].tagName === 'EM') {
+      let text = p.children[0].textContent.trim();
+      p.remove();
+
+      let coords = null;
+      const coordMatch = text.match(/^\[([%\w.]+),\s*([%\w.]+)\]\s*/);
+      if (coordMatch) {
+        coords = { left: normCoord(coordMatch[1]), top: normCoord(coordMatch[2]) };
+        text = text.slice(coordMatch[0].length).trim();
+      }
+      return { text, coords };
+    }
+  }
+  return null;
+}
+
+/**
+ * Positions the tooltip popup near the trigger using fixed positioning.
+ * Flips below the trigger when there isn't room above.
+ * @param {Element} trigger The tooltip trigger button
+ * @param {Element} popup The tooltip popup element
+ */
+function positionPopup(trigger, popup) {
+  const rect = trigger.getBoundingClientRect();
+  const popupWidth = 240;
+  const gap = 10;
+
+  popup.style.visibility = 'hidden';
+  popup.style.display = 'block';
+  const popupHeight = popup.offsetHeight;
+  popup.style.display = '';
+  popup.style.visibility = '';
+
+  const triggerCenter = rect.left + rect.width / 2;
+  let left = triggerCenter - popupWidth / 2;
+  left = Math.max(8, Math.min(left, window.innerWidth - popupWidth - 8));
+
+  const arrowLeft = triggerCenter - left;
+  popup.style.setProperty('--arrow-left', `${arrowLeft}px`);
+
+  const fitsAbove = rect.top - gap - popupHeight > 0;
+
+  popup.style.left = `${left}px`;
+
+  if (fitsAbove) {
+    popup.style.top = `${rect.top - gap - popupHeight}px`;
+    popup.classList.remove('below');
+  } else {
+    popup.style.top = `${rect.bottom + gap}px`;
+    popup.classList.add('below');
+  }
+}
+
+/**
+ * Builds and inserts a tooltip UI into a card.
+ * Popup is appended to body to escape overflow:hidden on the card.
+ * @param {string} text The tooltip text
+ * @param {{ left: string, top: string } | null} coords Optional XY position
+ * @param {Element} card The card li element
+ */
+function buildTooltip(text, coords, card) {
+  const bodyEl = card.querySelector('.cards-card-body');
+  if (!text || !bodyEl) return;
+
+  const wrapper = document.createElement('span');
+  wrapper.className = 'tooltip-wrapper';
+
+  const trigger = document.createElement('button');
+  trigger.className = 'tooltip-trigger';
+  trigger.setAttribute('type', 'button');
+  trigger.setAttribute('aria-expanded', 'false');
+  trigger.setAttribute('aria-label', 'More information');
+
+  const popup = document.createElement('div');
+  popup.className = 'cards-tooltip-popup';
+  popup.setAttribute('role', 'tooltip');
+  popup.textContent = text;
+  document.body.append(popup);
+
+  wrapper.append(trigger);
+
+  if (coords) {
+    wrapper.classList.add('tooltip-positioned');
+    wrapper.style.left = coords.left;
+    wrapper.style.top = coords.top;
+    card.append(wrapper);
+  } else {
+    // Append inline to the last non-link paragraph in the body
+    const paragraphs = [...bodyEl.querySelectorAll('p')];
+    let target = null;
+    paragraphs.forEach((p) => {
+      const a = p.querySelector('a');
+      if (!(a && a.textContent.trim() === p.textContent.trim())) {
+        target = p;
+      }
+    });
+    if (target) {
+      target.append(wrapper);
+    } else {
+      bodyEl.append(wrapper);
+    }
+  }
+
+  function show() {
+    positionPopup(trigger, popup);
+    popup.classList.add('visible');
+    trigger.setAttribute('aria-expanded', 'true');
+  }
+
+  function hide() {
+    popup.classList.remove('visible');
+    trigger.setAttribute('aria-expanded', 'false');
+  }
+
+  wrapper.addEventListener('mouseenter', show);
+  popup.addEventListener('mouseenter', show);
+  wrapper.addEventListener('mouseleave', (e) => {
+    if (!popup.contains(e.relatedTarget)) hide();
+  });
+  popup.addEventListener('mouseleave', (e) => {
+    if (!wrapper.contains(e.relatedTarget)) hide();
+  });
+
+  trigger.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (popup.classList.contains('visible')) hide();
+    else show();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!wrapper.contains(e.target) && !popup.contains(e.target)) {
+      hide();
+    }
+  });
+}
+
+/**
  * Returns the active variant options on the block.
  * @param {Element} block
  * @returns {string[]}
@@ -180,6 +341,7 @@ function getVariantLabel(options) {
   if (options.includes('deals-discounts')) return 'Deals and discounts';
   if (options.includes('previewtiles')) return 'Preview tiles';
   if (options.includes('categorytilettes')) return 'Category tiles';
+  if (options.includes('search-featured')) return 'Search featured devices';
   return 'Cards';
 }
 
@@ -204,8 +366,14 @@ export default function decorate(block) {
 
   /* change to ul, li */
   const ul = document.createElement('ul');
+  const tooltips = [];
   [...block.children].forEach((row) => {
     const card = createCard(row);
+
+    /* Extract tooltip before any variant restructuring */
+    const body = card.querySelector('.cards-card-body');
+    const tooltip = extractTooltip(body);
+    tooltips.push({ card, tooltip });
 
     /* variant-specific per-card decoration */
     if (options.includes('previewtiles')) {
@@ -216,7 +384,8 @@ export default function decorate(block) {
     if (options.includes('hero-marquee')
       || options.includes('deals-discounts')
       || options.includes('categorytilettes')
-      || options.includes('previewtiles')) {
+      || options.includes('previewtiles')
+      || options.includes('search-featured')) {
       makeClickable(card);
     }
 
@@ -243,4 +412,11 @@ export default function decorate(block) {
     addShowMoreButton(block, ul);
     applyDarkCardStyles(ul);
   }
+
+  /* Build tooltips after DOM is assembled */
+  tooltips.forEach(({ card, tooltip }) => {
+    if (tooltip) {
+      buildTooltip(tooltip.text, tooltip.coords, card);
+    }
+  });
 }

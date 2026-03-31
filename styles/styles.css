@@ -3,6 +3,11 @@
  * Migrated from https://www.verizon.com/
  */
 
+/* Hide metadata block from rendering */
+.metadata-container {
+  display: none;
+}
+
 :root {
   /* colors - Verizon brand palette */
   --background-color: #fff;
@@ -291,7 +296,8 @@ main > .section > div {
 }
 
 main > .section:first-of-type {
-  margin-top: 0;
+  margin-top: 24px;
+  margin-bottom: 0;
 }
 
 /* section variants */

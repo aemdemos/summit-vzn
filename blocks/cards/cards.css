@@ -24,6 +24,11 @@
   border: var(--cards-card-border-width) solid var(--cards-card-border-color);
   background-color: var(--background-color);
   box-shadow: 0 6px 48px #00000014;
+  transition: transform 0.15s;
+}
+
+.cards > ul > li:hover {
+  transform: scale(1.02);
 }
 
 .cards .cards-card-body {
@@ -60,6 +65,8 @@
   border-radius: 16px;
   overflow: hidden;
   min-height: 360px;
+  background: none;
+  box-shadow: none;
 }
 
 .cards.hero-marquee .cards-card-image {
@@ -75,20 +82,19 @@
 .cards.hero-marquee .cards-card-body {
   position: relative;
   z-index: 1;
-  margin: 0;
-  padding: 32px 24px;
+  margin: 0 10px;
+  padding: 18% 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-end;
   text-align: center;
   color: var(--color-white);
-  width: 330px;
+  width: 50%;
   height: 100%;
 }
 
 .cards.hero-marquee .cards-card-body h2 {
-  margin: 0 0 4px;
+  margin: 0 0 8px;
   font-family: var(--heading-font-family);
   font-weight: 700;
   font-size: 24px;
@@ -133,8 +139,7 @@
   }
 
   .cards.hero-marquee .cards-card-body {
-    padding: 32px 0 48px 24px;
-    justify-content: flex-end;
+    padding: 18% 0 0;
   }
 
 }
@@ -454,4 +459,210 @@
 
 .cards.categorytilettes .cards-card-body p {
   display: none;
+}
+
+/* ============================================================
+   VARIANT: search-featured — Cards (search-featured)
+   Featured device cards in the search overlay (3-col horizontal tiles)
+   ============================================================ */
+
+.cards.search-featured > ul {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.cards.search-featured > ul > li {
+  border: 0;
+  background-color: #f8f7f5;
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 16px;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80px;
+  box-shadow: none;
+  cursor: pointer;
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.cards.search-featured > ul > li:hover {
+  transform: scale(1.02);
+  background-color: #f0efed;
+}
+
+.cards.search-featured .cards-card-body {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+}
+
+.cards.search-featured .cards-card-body h1,
+.cards.search-featured .cards-card-body h2,
+.cards.search-featured .cards-card-body h3,
+.cards.search-featured .cards-card-body h4,
+.cards.search-featured .cards-card-body h5,
+.cards.search-featured .cards-card-body h6 {
+  margin: 0;
+  font-family: var(--heading-font-family);
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 20px;
+  color: var(--color-black);
+}
+
+.cards.search-featured .cards-card-body a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.cards.search-featured .cards-card-body p {
+  display: none;
+}
+
+.cards.search-featured .cards-card-image {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  margin-right: 12px;
+  line-height: 0;
+}
+
+.cards.search-featured .cards-card-image img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+
+@media (width < 900px) {
+  .cards.search-featured > ul {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}
+
+@media (width >= 600px) and (width < 900px) {
+  .cards.search-featured > ul {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ============================================================
+   TOOLTIP — shared across card variants
+   ============================================================ */
+
+.cards .tooltip-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 10px;
+  margin-left: 6px;
+  vertical-align: middle;
+  z-index: 2;
+}
+
+.cards .tooltip-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--color-black);
+  background: transparent;
+  color: var(--color-black);
+  font-size: 7px;
+  font-style: italic;
+  font-family: Georgia, 'Times New Roman', serif;
+  cursor: pointer;
+  padding: 5px;
+  line-height: 8.5px;
+  flex-shrink: 0;
+}
+
+.cards .tooltip-trigger::before {
+  content: 'i';
+}
+
+/* Dark cards: white tooltip icon */
+.cards > ul > li.dark .tooltip-trigger {
+  border-color: var(--color-white);
+  color: var(--color-white);
+}
+
+/* Hero-marquee cards: white tooltip icon */
+.cards.hero-marquee .tooltip-trigger {
+  border-color: var(--color-white);
+  color: var(--color-white);
+}
+
+/* Absolutely-positioned tooltip via authored [x, y] coordinates */
+.cards .tooltip-wrapper.tooltip-positioned {
+  position: absolute;
+  margin-left: 0;
+}
+
+/* Tooltip popup — appended to body to escape card overflow:hidden */
+.cards-tooltip-popup {
+  display: none;
+  position: fixed;
+  width: 240px;
+  background: var(--color-white, #fff);
+  color: var(--color-black, #000);
+  border: 1px solid var(--color-black, #000);
+  border-radius: 4px;
+  padding: 16px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 1.5;
+  box-shadow: 0 4px 16px rgb(0 0 0 / 20%);
+  z-index: 1000;
+  text-align: left;
+  pointer-events: auto;
+}
+
+/* Arrow border (outer black triangle) — popup above trigger */
+.cards-tooltip-popup::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 9px solid transparent;
+  border-top-color: var(--color-black, #000);
+}
+
+/* Arrow fill (inner white triangle) */
+.cards-tooltip-popup::after {
+  content: '';
+  position: absolute;
+  top: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: var(--color-white, #fff);
+}
+
+/* Arrow border — popup below trigger */
+.cards-tooltip-popup.below::before {
+  top: auto;
+  bottom: 100%;
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-black, #000);
+}
+
+/* Arrow fill — popup below trigger */
+.cards-tooltip-popup.below::after {
+  top: auto;
+  bottom: calc(100% - 1px);
+  left: var(--arrow-left, 50%);
+  border-top-color: transparent;
+  border-bottom-color: var(--color-white, #fff);
+}
+
+.cards-tooltip-popup.visible {
+  display: block;
 }
